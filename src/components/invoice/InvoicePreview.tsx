@@ -12,44 +12,10 @@ interface InvoicePreviewProps {
 export function InvoicePreview({ invoice }: InvoicePreviewProps) {
 	const previewRef = useRef<HTMLDivElement>(null)
 
-	const handleDownloadPDF = async () => {
-		if (!previewRef.current) return
-
-		try {
-			const canvas = await html2canvas(previewRef.current, {
-				scale: 2,
-				useCORS: true,
-				logging: false
-			})
-
-			const imgData = canvas.toDataURL('image/png')
-			const pdf = new jsPDF({
-				orientation: 'portrait',
-				unit: 'mm',
-				format: 'a4'
-			})
-
-			const imgProps = pdf.getImageProperties(imgData)
-			const pdfWidth = pdf.internal.pageSize.getWidth()
-			const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width
-
-			pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
-			pdf.save(`invoice-${invoice.invoiceNumber}.pdf`)
-		} catch (error) {
-			console.error('Error generating PDF:', error)
-			// TODO: Add proper error handling UI
-		}
-	}
+	// Download PDF logic will be handled in the parent form
 
 	return (
 		<div>
-			<button
-				onClick={handleDownloadPDF}
-				className={styles.downloadBtn}
-			>
-				Download PDF
-			</button>
-
 			<div
 				ref={previewRef}
 				className={styles.previewContainer}

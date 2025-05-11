@@ -1,10 +1,14 @@
 import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { InvoiceFormData, Company } from '@/types/invoice'
+import { InvoiceFormData, Company, Invoice } from '@/types/invoice'
 import { currencies } from '@/lib/currencies'
 import { parseInvoiceText } from '@/lib/ai-service'
 import styles from './invoice-form.module.css'
+import { InvoicePreview } from './InvoicePreview'
+import { useRef } from 'react'
+import html2canvas from 'html2canvas'
+import jsPDF from 'jspdf'
 
 const companySchema = z.object({
 	name: z.string().min(1, 'Company name is required'),
@@ -42,6 +46,17 @@ interface InvoiceFormProps {
 	onSubmit: (data: InvoiceFormData) => void
 }
 
+const emptyCompany: Company = {
+	name: '',
+	address: '',
+	city: '',
+	state: '',
+	zipCode: '',
+	country: '',
+	email: '',
+	phone: '',
+}
+
 export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
 	const {
 		register,
@@ -64,6 +79,42 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
 		name: 'items'
 	})
 
+	const formData = watch()
+	const hiddenPreviewRef = useRef<HTMLDivElement>(null)
+
+	const getInvoicePreviewData = (): Invoice => {
+		const items = (formData.items || []).map((item, idx) => {
+			const amount = Number(item.quantity) * Number(item.rate)
+			return {
+				id: String(idx),
+				description: item.description,
+				quantity: Number(item.quantity),
+				rate: Number(item.rate),
+				amount
+			}
+		})
+		const subtotal = items.reduce((sum, item) => sum + item.amount, 0)
+		const taxAmount = subtotal * (Number(formData.taxRate) || 0) / 100
+		const total = subtotal + taxAmount
+		return {
+			id: 'preview',
+			invoiceNumber: formData.invoiceNumber || '',
+			date: formData.date || '',
+			dueDate: formData.dueDate || '',
+			sender: formData.sender || emptyCompany,
+			recipient: formData.recipient || emptyCompany,
+			items,
+			subtotal,
+			taxRate: Number(formData.taxRate) || 0,
+			taxAmount,
+			total,
+			currency: formData.currency || 'USD',
+			notes: formData.notes,
+			paymentInstructions: formData.paymentInstructions,
+			logo: formData.logo
+		}
+	}
+
 	const handleAIParse = async (text: string) => {
 		try {
 			const parsedData = await parseInvoiceText(text)
@@ -77,6 +128,32 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
 		}
 	}
 
+	const handleDownloadPDF = async () => {
+		if (!hiddenPreviewRef.current) return
+		const node = hiddenPreviewRef.current.querySelector('div')
+		if (!node) return
+		try {
+			const canvas = await html2canvas(node, {
+				scale: 2,
+				useCORS: true,
+				logging: false
+			})
+			const imgData = canvas.toDataURL('image/png')
+			const pdf = new jsPDF({
+				orientation: 'portrait',
+				unit: 'mm',
+				format: 'a4'
+			})
+			const imgProps = pdf.getImageProperties(imgData)
+			const pdfWidth = pdf.internal.pageSize.getWidth()
+			const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width
+			pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
+			pdf.save(`invoice-${formData.invoiceNumber || 'preview'}.pdf`)
+		} catch (error) {
+			console.error('Error generating PDF:', error)
+		}
+	}
+
 	return (
 		<form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
 			{/* AI Input Section */}
@@ -87,6 +164,13 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
 					placeholder="Enter invoice details in plain text..."
 					onChange={(e) => handleAIParse(e.target.value)}
 				/>
+				<button
+					type="submit"
+					className={styles.button}
+					style={{ marginTop: '1rem' }}
+				>
+					Generate Invoice
+				</button>
 			</div>
 
 			{/* Basic Invoice Info */}
@@ -228,12 +312,27 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
 				</div>
 			</div>
 
-			<button
-				type="submit"
-				className={styles.button}
-			>
-				Generate Invoice
-			</button>
+			{/* Action Buttons */}
+			<div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '2rem' }}>
+				<button type="button" className={styles.button} onClick={handleDownloadPDF}>
+					Download as PDF
+				</button>
+				<button type="button" className={styles.button}>
+					Email Invoice
+				</button>
+			</div>
+
+			{/* Styled Invoice Preview Section */}
+			<div style={{ display: 'flex', flexDirection: 'row', gap: '2rem', marginTop: '3rem', alignItems: 'flex-start' }}>
+				{/* Visible, scaled-down preview */}
+				<div style={{ flex: 1, transform: 'scale(0.7)', transformOrigin: 'top left', minWidth: 0 }}>
+					<InvoicePreview invoice={getInvoicePreviewData()} />
+				</div>
+				{/* Visible, full-size preview for PDF generation (for testing) */}
+				<div ref={hiddenPreviewRef} aria-hidden="false">
+					<InvoicePreview invoice={getInvoicePreviewData()} />
+				</div>
+			</div>
 		</form>
 	)
 } 

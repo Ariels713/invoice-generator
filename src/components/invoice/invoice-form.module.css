@@ -92,4 +92,15 @@
 	font-size: 0.9rem;
 	margin-top: -0.5rem;
 	margin-bottom: 0.5rem;
+}
+
+.hiddenPreview {
+	position: absolute;
+	left: -9999px;
+	top: 0;
+	width: 800px;
+	height: auto;
+	pointer-events: none;
+	visibility: hidden;
+	z-index: -1;
 } 
