@@ -3,6 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { InvoiceFormData, Company, Invoice } from "@/types/invoice";
 import { currencies } from "@/lib/currencies";
+import { usStates } from "@/lib/states";
 import { parseInvoiceText } from "@/lib/ai-service";
 import styles from "./invoice-form.module.css";
 import { InvoicePreview } from "./InvoicePreview";
@@ -15,14 +16,14 @@ const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
 
 const companySchema = z.object({
   name: z.string().min(1, "Company name is required"),
-  address: z.string().min(1, "Address is required"),
-  city: z.string().min(1, "City is required"),
-  state: z.string().min(1, "State is required"),
-  zipCode: z.string().min(1, "ZIP code is required"),
-  country: z.string().min(1, "Country is required"),
   email: z.string().email("Invalid email address"),
+  address: z.string().min(1, "Address is required"),
+  address2: z.string().optional(),
+  city: z.string().min(1, "City is required"),
+  postalCode: z.string().min(1, "Postal code is required"),
+  country: z.string().min(1, "Country is required"),
+  state: z.string().min(1, "State is required"),
   phone: z.string().min(1, "Phone number is required"),
-  website: z.string().optional(),
 });
 
 const invoiceItemSchema = z.object({
@@ -57,12 +58,13 @@ interface InvoiceFormProps {
 
 const emptyCompany: Company = {
   name: "",
-  address: "",
-  city: "",
-  state: "",
-  zipCode: "",
-  country: "",
   email: "",
+  address: "",
+  address2: "",
+  city: "",
+  postalCode: "",
+  country: "",
+  state: "",
   phone: "",
 };
 
@@ -199,7 +201,35 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
     <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
       {/* AI Input Section */}
       <div className={styles.section}>
-        <h2 className={styles.label}>AI Invoice Parser</h2>
+        <div className={styles.row} style={{gap: '.5rem', alignItems: 'center', marginBlockEnd: '0'}}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="17"
+            viewBox="0 0 16 17"
+            fill="none"
+          >
+            <g clip-path="url(#clip0_10936_25363)">
+              <path
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M7.40039 1.24994V4.24994C7.40039 4.58131 7.66863 4.84955 8 4.84955C8.33137 4.84955 8.59961 4.58131 8.59961 4.24994V1.24994C8.59961 0.918568 8.33137 0.65033 8 0.65033C7.66863 0.65033 7.40039 0.918568 7.40039 1.24994ZM15.1211 7.66205L15 7.65033H12C11.6686 7.65033 11.4004 7.91857 11.4004 8.24994C11.4004 8.58131 11.6686 8.84955 12 8.84955H15L15.1211 8.83783C15.3944 8.78182 15.5996 8.53984 15.5996 8.24994C15.5996 7.96004 15.3944 7.71805 15.1211 7.66205ZM4 7.65033L4.12109 7.66205C4.39443 7.71805 4.59961 7.96004 4.59961 8.24994C4.59961 8.53984 4.39443 8.78182 4.12109 8.83783L4 8.84955H1C0.668629 8.84955 0.400391 8.58131 0.400391 8.24994C0.400391 7.91857 0.668629 7.65033 1 7.65033H4ZM7.40039 12.2499V15.2499C7.40039 15.5813 7.66863 15.8495 8 15.8495C8.33137 15.8495 8.59961 15.5813 8.59961 15.2499V12.2499C8.59961 11.9186 8.33137 11.6503 8 11.6503C7.66863 11.6503 7.40039 11.9186 7.40039 12.2499ZM1.57617 1.82611C1.78121 1.62108 2.09718 1.59517 2.33008 1.74896L2.42383 1.82611L6.42383 5.82611L6.50098 5.91986C6.65477 6.15276 6.62886 6.46873 6.42383 6.67377C6.21879 6.8788 5.90282 6.90471 5.66992 6.75092L5.57617 6.67377L1.57617 2.67377L1.49902 2.58002C1.34523 2.34712 1.37114 2.03115 1.57617 1.82611ZM6.42383 9.82611C6.21879 9.62107 5.90282 9.59517 5.66992 9.74896L5.57617 9.82611L1.57617 13.8261C1.34186 14.0604 1.34186 14.4395 1.57617 14.6738C1.81049 14.9081 2.18951 14.9081 2.42383 14.6738L6.42383 10.6738L6.50098 10.58C6.65477 10.3471 6.62886 10.0311 6.42383 9.82611ZM13.6699 1.74896C13.9028 1.59517 14.2188 1.62108 14.4238 1.82611C14.6289 2.03115 14.6548 2.34712 14.501 2.58002L14.4238 2.67377L10.4238 6.67377C10.1895 6.90808 9.81049 6.90808 9.57617 6.67377C9.34186 6.43945 9.34186 6.06043 9.57617 5.82611L13.5762 1.82611L13.6699 1.74896ZM10.3301 9.74896C10.0972 9.59517 9.78121 9.62107 9.57617 9.82611C9.37114 10.0311 9.34523 10.3471 9.49902 10.58L9.57617 10.6738L13.5762 14.6738L13.6699 14.7509C13.9028 14.9047 14.2188 14.8788 14.4238 14.6738C14.6289 14.4687 14.6548 14.1528 14.501 13.9199L14.4238 13.8261L10.4238 9.82611L10.3301 9.74896Z"
+                fill="#00A688"
+              />
+            </g>
+            <defs>
+              <clipPath id="clip0_10936_25363">
+                <rect
+                  width="16"
+                  height="16"
+                  fill="white"
+                  transform="translate(0 0.25)"
+                />
+              </clipPath>
+            </defs>
+          </svg>
+          <h2 className={styles.labelHeader} style={{margin: 0}}>Or let AI do it for you</h2>
+        </div>
         <textarea
           className={styles.textarea}
           placeholder="Enter invoice details in plain text..."
@@ -213,6 +243,11 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
           Generate Invoice
         </button>
       </div>
+	  
+	  <div className={styles.row}>
+		{/* link to terms and conditions */}
+		<a href="/terms" className={styles.termsLink}>Terms and Conditions</a>
+	  </div>
 
       {/* Basic Invoice Info */}
       <div className={styles.row}>
@@ -264,53 +299,140 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
       <div className={styles.row}>
         <div className={styles.col}>
           <h3 className={styles.labelHeader}>Your company info</h3>
-          {Object.keys(companySchema.shape).map((field) => (
-            <div key={field}>
-              <label className={styles.label}>
-                {field.replace(/([A-Z])/g, " $1").trim()}
-              </label>
-              <input
-                type={field === "email" ? "email" : "text"}
-                {...register(`sender.${field as keyof Company}`)}
-                className={styles.input}
-              />
-            </div>
-          ))}
-        </div>
-
-        {/* <div className={styles.col}>
-          <label className={styles.label}>Currency</label>
-          <select {...register("currency")} className={styles.select}>
-            {currencies.map((currency) => (
-              <option key={currency.code} value={currency.code}>
-                {currency.flag} {currency.code} - {currency.name}
+          <input
+            type="text"
+            {...register("sender.name")}
+            className={styles.input}
+            placeholder="Company Name"
+          />
+          <input
+            type="email"
+            {...register("sender.email")}
+            className={styles.input}
+            placeholder="Email Address"
+          />
+          <input
+            type="text"
+            {...register("sender.address")}
+            className={styles.input}
+            placeholder="Address Line 1"
+          />
+          <input
+            type="text"
+            {...register("sender.address2")}
+            className={styles.input}
+            placeholder="Address Line 2 (Optional)"
+          />
+          <div className={styles.row}>
+            <input
+              type="text"
+              {...register("sender.city")}
+              className={styles.input}
+              placeholder="City"
+            />
+            <input
+              type="text"
+              {...register("sender.postalCode")}
+              className={styles.input}
+              placeholder="Zip Code"
+            />
+          </div>
+          <div className={styles.row}>
+            <select
+              {...register("sender.state")}
+              className={styles.select}
+              defaultValue=""
+            >
+              <option value="" disabled>
+                Select State
               </option>
-            ))}
-          </select>
-        </div> */}
+              {usStates.map((state) => (
+                <option key={state.value} value={state.value}>
+                  {state.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <input
+            type="tel"
+            {...register("sender.phone")}
+            className={styles.input}
+            placeholder="Phone Number"
+          />
+        </div>
       </div>
 
+      {/* Receiving Company Information */}
       <div className={styles.row}>
         <div className={styles.col}>
-          <h3 className={styles.label}>Recipient Information</h3>
-          {Object.keys(companySchema.shape).map((field) => (
-            <div key={field}>
-              <label className={styles.label}>
-                {field.replace(/([A-Z])/g, " $1").trim()}
-              </label>
-              <input
-                type={field === "email" ? "email" : "text"}
-                {...register(`recipient.${field as keyof Company}`)}
-                className={styles.input}
-              />
-            </div>
-          ))}
+          <h3 className={styles.labelHeader}>Receiving company info</h3>
+          <input
+            type="text"
+            {...register("recipient.name")}
+            className={styles.input}
+            placeholder="Company Name"
+          />
+          <input
+            type="email"
+            {...register("recipient.email")}
+            className={styles.input}
+            placeholder="Email Address"
+          />
+          <input
+            type="text"
+            {...register("recipient.address")}
+            className={styles.input}
+            placeholder="Address Line 1"
+          />
+          <input
+            type="text"
+            {...register("recipient.address2")}
+            className={styles.input}
+            placeholder="Address Line 2 (Optional)"
+          />
+
+          <div className={styles.row}>
+            <input
+              type="text"
+              {...register("recipient.city")}
+              className={styles.input}
+              placeholder="City"
+            />
+            <input
+              type="text"
+              {...register("recipient.postalCode")}
+              className={styles.input}
+              placeholder="Zip Code"
+            />
+          </div>
+          <div className={styles.row}>
+            <select
+              {...register("recipient.state")}
+              className={styles.select}
+              defaultValue=""
+            >
+              <option value="" disabled>
+                Select State
+              </option>
+              {usStates.map((state) => (
+                <option key={state.value} value={state.value}>
+                  {state.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <input
+            type="tel"
+            {...register("recipient.phone")}
+            className={styles.input}
+            placeholder="Phone Number"
+          />
         </div>
       </div>
 
       {/* Invoice Items */}
       <div className={styles.section}>
-        <h3 className={styles.label}>Invoice Items</h3>
+        <h3 className={styles.label}>Invoice Details</h3>
         {fields.map((field, index) => (
           <div key={field.id} className={styles.row}>
             <div className={styles.col}>

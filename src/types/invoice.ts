@@ -1,13 +1,13 @@
 export interface Company {
 	name: string
-	address: string
-	city: string
-	state: string
-	zipCode: string
-	country: string
 	email: string
+	address: string
+	address2: string
+	city: string
+	postalCode: string
+	country?: string
+	state: string
 	phone: string
-	website?: string
 }
 
 export interface InvoiceItem {
@@ -43,6 +43,16 @@ export type Currency = {
 	flag: string
 }
 
-export interface InvoiceFormData extends Omit<Invoice, 'id' | 'subtotal' | 'taxAmount' | 'total'> {
+export interface InvoiceFormData {
+	invoiceNumber: string
+	date: string
+	dueDate: string
+	sender: Company
+	recipient: Company
 	items: Omit<InvoiceItem, 'id' | 'amount'>[]
+	taxRate: number
+	currency: string
+	notes?: string
+	paymentInstructions?: string
+	logo?: string
 } 

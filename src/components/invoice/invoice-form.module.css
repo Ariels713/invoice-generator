@@ -7,7 +7,6 @@
 .section {
   background: #f4f8f6;
   border-radius: 8px;
-  margin-bottom: 1.5rem;
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -197,3 +196,18 @@
   border-color: #38bdf8;
   outline: none;
 }
+
+.termsLink {
+	color: var(--fg-static-neutral-light, #6B6B6B);
+	font-family: var(--font-Fixed-200, "Basier Circle");
+	font-size: 14px;
+	font-style: normal;
+	font-weight: 400;
+	line-height: 16px;
+}
+
+.termsLink:hover {
+  text-decoration: underline;
+}
+
+
