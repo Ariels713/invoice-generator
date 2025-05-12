@@ -21,6 +21,7 @@ export interface InvoiceItem {
 export interface Invoice {
 	id: string
 	invoiceNumber: string
+	invoiceName: string
 	date: string
 	dueDate: string
 	sender: Company
@@ -45,6 +46,7 @@ export type Currency = {
 
 export interface InvoiceFormData {
 	invoiceNumber: string
+	invoiceName: string
 	date: string
 	dueDate: string
 	sender: Company

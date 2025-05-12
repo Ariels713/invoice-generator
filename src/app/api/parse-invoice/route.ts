@@ -6,6 +6,7 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! })
 const INVOICE_PARSE_PROMPT = `You are an AI assistant that helps parse invoice information from text. 
 Return a JSON object with these exact keys:
 - invoiceNumber (string)
+- invoiceName (string, a short 3-5 word description of the invoice)
 - date (string)
 - dueDate (string)
 - sender (object: { name, address, city, state, zipCode, country, email, phone })

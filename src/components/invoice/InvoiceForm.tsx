@@ -28,12 +28,14 @@ const companySchema = z.object({
 
 const invoiceItemSchema = z.object({
   description: z.string().min(1, "Description is required"),
+  issueDate: z.string().min(1, "Issue date is required"),
   quantity: z.number().min(0, "Quantity must be positive"),
   rate: z.number().min(0, "Rate must be positive"),
 });
 
 const invoiceSchema = z.object({
   invoiceNumber: z.string().min(1, "Invoice number is required"),
+  invoiceName: z.string().min(1, "Invoice name is required"),
   date: z.string().min(1, "Date is required"),
   dueDate: z.string().min(1, "Due date is required"),
   sender: companySchema,
@@ -69,6 +71,9 @@ const emptyCompany: Company = {
 };
 
 export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
+  const [aiInputText, setAiInputText] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -79,9 +84,21 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
   } = useForm<InvoiceFormData>({
     resolver: zodResolver(invoiceSchema),
     defaultValues: {
+      invoiceName: "",
       currency: "USD",
       taxRate: 0,
-      items: [{ description: "", quantity: 1, rate: 0 }],
+      items: [
+        {
+          description: "",
+          issueDate: new Date().toISOString().split("T")[0],
+          quantity: 1,
+          rate: 0,
+        },
+      ],
+      date: new Date().toISOString().split("T")[0],
+      dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split("T")[0],
     },
   });
 
@@ -110,6 +127,7 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
     return {
       id: "preview",
       invoiceNumber: formData.invoiceNumber || "",
+      invoiceName: formData.invoiceName || "",
       date: formData.date || "",
       dueDate: formData.dueDate || "",
       sender: formData.sender || emptyCompany,
@@ -126,16 +144,28 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
     };
   };
 
-  const handleAIParse = async (text: string) => {
+  const handleAIParse = async () => {
+    if (!aiInputText.trim()) return;
+
+    setIsGenerating(true);
     try {
-      const parsedData = await parseInvoiceText(text);
-      console.log("AI parsed data:", parsedData);
+      const parsedData = await parseInvoiceText(aiInputText);
+      if (parsedData.description && !parsedData.invoiceName) {
+        const words = parsedData.description.split(" ").slice(0, 5).join(" ");
+        setValue("invoiceName", words);
+      } else if (parsedData.invoiceName) {
+        setValue("invoiceName", parsedData.invoiceName);
+      }
       Object.entries(parsedData).forEach(([key, value]) => {
-        setValue(key as keyof InvoiceFormData, value);
+        if (key !== "description" && key !== "invoiceName") {
+          setValue(key as keyof InvoiceFormData, value);
+        }
       });
     } catch (error) {
       console.error("Error parsing with AI:", error);
       // TODO: Add proper error handling UI
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -197,11 +227,19 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
     reader.readAsDataURL(file);
   };
 
+  const subtotal = (formData.items || []).reduce(
+    (sum, item) => sum + Number(item.quantity) * Number(item.rate),
+    0
+  );
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
       {/* AI Input Section */}
       <div className={styles.section}>
-        <div className={styles.row} style={{gap: '.5rem', alignItems: 'center', marginBlockEnd: '0'}}>
+        <div
+          className={styles.row}
+          style={{ gap: ".5rem", alignItems: "center", marginBlockEnd: "0" }}
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"
@@ -228,45 +266,54 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
               </clipPath>
             </defs>
           </svg>
-          <h2 className={styles.labelHeader} style={{margin: 0}}>Or let AI do it for you</h2>
+          <h2 className={styles.labelHeader} style={{ margin: 0 }}>
+            Or let AI do it for you
+          </h2>
         </div>
         <textarea
           className={styles.textarea}
           placeholder="Enter invoice details in plain text..."
-          onChange={(e) => handleAIParse(e.target.value)}
+          value={aiInputText}
+          onChange={(e) => setAiInputText(e.target.value)}
+          disabled={isGenerating}
         />
         <button
-          type="submit"
-          className={styles.button}
+          type="button"
+          className={`${styles.button} ${isGenerating ? styles.buttonLoading : ""}`}
           style={{ marginTop: "1rem" }}
+          onClick={handleAIParse}
+          disabled={isGenerating || !aiInputText.trim()}
         >
-          Generate Invoice
+          {isGenerating ? "Generating..." : "Generate Invoice"}
         </button>
       </div>
-	  
-	  <div className={styles.row}>
-		{/* link to terms and conditions */}
-		<a href="/terms" className={styles.termsLink}>Terms and Conditions</a>
-	  </div>
+
+      <div className={styles.row}>
+        {/* link to terms and conditions */}
+        <a href="/terms" className={styles.termsLink}>
+          Terms and Conditions
+        </a>
+      </div>
 
       {/* Basic Invoice Info */}
       <div className={styles.row}>
         <div className={styles.col}>
-          <label className={styles.label}>Invoice Number</label>
+          <label className={styles.labelHeader}>Invoice Name</label>
           <input
             type="text"
-            {...register("invoiceNumber")}
+            {...register("invoiceName")}
             className={styles.input}
+            placeholder="Short description (3-5 words)"
           />
-          {errors.invoiceNumber && (
-            <p className={styles.error}>{errors.invoiceNumber.message}</p>
+          {errors.invoiceName && (
+            <p className={styles.error}>{errors.invoiceName.message}</p>
           )}
         </div>
       </div>
 
       <div className={styles.row}>
         <div className={styles.col}>
-          <label className={styles.label}>Company Logo</label>
+          <label className={styles.labelHeader}>Upload File</label>
           <div className={styles.logoUpload}>
             <input
               type="file"
@@ -430,16 +477,72 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
         </div>
       </div>
 
+      {/* Invoice Details */}
+      <div className={`${styles.section} ${styles.itemsSection}`}>
+        <h3 className={styles.labelHeader}>Invoice Details</h3>
+        <div className={styles.itemStack}>
+          <div className={styles.col}>
+            <label className={styles.label}>Invoice #</label>
+            <input
+              type="text"
+              {...register("invoiceNumber")}
+              className={styles.input}
+              placeholder="Invoice Number"
+            />
+            {errors.invoiceNumber && (
+              <p className={styles.error}>{errors.invoiceNumber.message}</p>
+            )}
+          </div>
+          <div className={styles.col}>
+            <label className={styles.label}>Issue Date</label>
+            <input type="date" {...register("date")} className={styles.input} />
+            {errors.date && (
+              <p className={styles.error}>{errors.date.message}</p>
+            )}
+          </div>
+          <div className={styles.col}>
+            <label className={styles.label}>Due Date</label>
+            <input
+              type="date"
+              {...register("dueDate")}
+              className={styles.input}
+            />
+            {errors.dueDate && (
+              <p className={styles.error}>{errors.dueDate.message}</p>
+            )}
+          </div>
+          <div className={styles.col}>
+            <label className={styles.label}>Currency</label>
+            <select {...register("currency")} className={styles.select}>
+              {currencies.map((currency) => (
+                <option key={currency.code} value={currency.code}>
+                  {currency.flag} {currency.code} - {currency.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
+
       {/* Invoice Items */}
-      <div className={styles.section}>
-        <h3 className={styles.label}>Invoice Details</h3>
+      <div className={`${styles.section} ${styles.itemsSection}`}>
+        <h3 className={styles.labelHeader}>Items</h3>
         {fields.map((field, index) => (
-          <div key={field.id} className={styles.row}>
+          <div key={field.id} className={styles.itemStack}>
             <div className={styles.col}>
-              <label className={styles.label}>Description</label>
+              <label className={styles.label}>Item or Service</label>
               <input
                 type="text"
                 {...register(`items.${index}.description`)}
+                placeholder="Description"
+                className={styles.input}
+              />
+            </div>
+            <div className={styles.col}>
+              <label className={styles.label}>Issue Date</label>
+              <input
+                type="date"
+                {...register(`items.${index}.issueDate`)}
                 className={styles.input}
               />
             </div>
@@ -453,30 +556,67 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
                 className={styles.input}
               />
             </div>
-            <div className={styles.col}>
+            <div className={styles.col} style={{ position: "relative" }}>
               <label className={styles.label}>Rate</label>
+              <span className={styles.currencyPrefix}>
+                {currencies.find((c) => c.code === formData.currency)?.symbol ||
+                  formData.currency}
+              </span>
               <input
                 type="number"
+                step="0.01"
                 {...register(`items.${index}.rate`, { valueAsNumber: true })}
                 className={styles.input}
+                style={{ paddingLeft: "2rem", paddingRight: "4.5rem" }}
               />
+              <span className={styles.currencyAdornment}>
+                {currencies.find((c) => c.code === formData.currency)?.flag}{" "}
+                {formData.currency}
+              </span>
             </div>
-            <button
-              type="button"
-              onClick={() => remove(index)}
-              className={styles.removeBtn}
-            >
-              Remove
-            </button>
+            {fields.length > 1 && (
+              <button
+                type="button"
+                onClick={() => remove(index)}
+                className={styles.removeBtn}
+              >
+                Remove
+              </button>
+            )}
           </div>
         ))}
         <button
           type="button"
-          onClick={() => append({ description: "", quantity: 1, rate: 0 })}
+          onClick={() =>
+            append({
+              description: "",
+              issueDate: new Date().toISOString().split("T")[0],
+              quantity: 1,
+              rate: 0,
+            })
+          }
           className={styles.addItemBtn}
         >
           Add Item
         </button>
+        <div className={styles.itemsTotal}>
+          <span>Total:&nbsp;</span>
+          <div className={styles.itemsTotalAmount}>
+            <span>
+              {currencies.find((c) => c.code === formData.currency)?.symbol ||
+                formData.currency}
+            </span>
+            <span>
+              {subtotal.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </span>
+          </div>
+          {/* <span className={styles.itemsTotalCurrency}>
+            {currencies.find((c) => c.code === formData.currency)?.flag} {formData.currency}
+          </span> */}
+        </div>
       </div>
 
       {/* Tax Rate */}

@@ -31,6 +31,9 @@ export function InvoicePreview({ invoice }: InvoicePreviewProps) {
 							/>
 						)}
 						<h1 className={styles.title}>INVOICE</h1>
+						{invoice.invoiceName && (
+							<p className={styles.invoiceName}>{invoice.invoiceName}</p>
+						)}
 					</div>
 					<div style={{ textAlign: 'right' }}>
 						<p style={{ fontWeight: 600 }}>Invoice #{invoice.invoiceNumber}</p>

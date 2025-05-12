@@ -27,13 +27,13 @@ export const currencies: Currency[] = [
 	},
 	{
 		code: 'CAD',
-		symbol: 'C$',
+		symbol: '$',
 		name: 'Canadian Dollar',
 		flag: '🇨🇦'
 	},
 	{
 		code: 'AUD',
-		symbol: 'A$',
+		symbol: '$',
 		name: 'Australian Dollar',
 		flag: '🇦🇺'
 	}
