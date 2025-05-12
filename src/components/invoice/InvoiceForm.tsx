@@ -10,6 +10,7 @@ import { InvoicePreview } from "./InvoicePreview";
 import { useRef, useState } from "react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { generateInvoiceName } from "@/lib/generate-invoice-name";
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
@@ -52,6 +53,7 @@ const invoiceSchema = z.object({
       if (!val) return true; // Optional
       return val.startsWith("data:image/");
     }, "Invalid image format"),
+  shipping: z.number().min(0, 'Shipping must be positive').optional(),
 });
 
 interface InvoiceFormProps {
@@ -73,6 +75,7 @@ const emptyCompany: Company = {
 export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
   const [aiInputText, setAiInputText] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [showShipping, setShowShipping] = useState(false);
 
   const {
     register,
@@ -99,6 +102,7 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
       dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
         .toISOString()
         .split("T")[0],
+      shipping: 0,
     },
   });
 
@@ -123,7 +127,8 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
     });
     const subtotal = items.reduce((sum, item) => sum + item.amount, 0);
     const taxAmount = (subtotal * (Number(formData.taxRate) || 0)) / 100;
-    const total = subtotal + taxAmount;
+    const shipping = Number(formData.shipping) || 0;
+    const total = subtotal + taxAmount + shipping;
     return {
       id: "preview",
       invoiceNumber: formData.invoiceNumber || "",
@@ -150,17 +155,23 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
     setIsGenerating(true);
     try {
       const parsedData = await parseInvoiceText(aiInputText);
-      if (parsedData.description && !parsedData.invoiceName) {
-        const words = parsedData.description.split(" ").slice(0, 5).join(" ");
-        setValue("invoiceName", words);
-      } else if (parsedData.invoiceName) {
-        setValue("invoiceName", parsedData.invoiceName);
-      }
+
+      // Set all parsed values into the form except invoiceName
       Object.entries(parsedData).forEach(([key, value]) => {
-        if (key !== "description" && key !== "invoiceName") {
+        if (key !== "invoiceName") {
           setValue(key as keyof InvoiceFormData, value);
         }
+        if (key === "shipping" && value) {
+          setShowShipping(true);
+        }
       });
+
+      // Always generate invoice name from parsed values if not provided by AI
+      let invoiceName = parsedData.invoiceName;
+      if (!invoiceName || !invoiceName.trim()) {
+        invoiceName = generateInvoiceName(parsedData);
+      }
+      setValue("invoiceName", invoiceName);
     } catch (error) {
       console.error("Error parsing with AI:", error);
       // TODO: Add proper error handling UI
@@ -619,28 +630,100 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
         </div>
       </div>
 
-      {/* Tax Rate */}
-      <div className={styles.section}>
-        <label className={styles.label}>Tax Rate (%)</label>
-        <input
-          type="number"
-          {...register("taxRate", { valueAsNumber: true })}
-          className={styles.input}
-        />
+      {/* Notes and Payment Instructions */}
+      <div className={`${styles.section} ${styles.itemsSection}`}>
+        <h3 className={styles.labelHeader}>Payment Details</h3>
+        <div className={styles.itemStack}>
+          <div className={styles.col}>
+            <label className={styles.label}>Payment Instructions</label>
+            <input
+              {...register("notes")}
+              className={styles.input}
+              placeholder="Add any additional notes here..."
+            />
+          </div>
+          <div className={styles.col}>
+            <label className={styles.label}>Payment Instructions</label>
+            <textarea
+              {...register("paymentInstructions")}
+              className={styles.textarea}
+              style={{ minHeight: "100px" }}
+              placeholder="Add payment instructions here..."
+            />
+          </div>
+        </div>
       </div>
 
-      {/* Notes and Payment Instructions */}
+      {/* Tax Rate */}
       <div className={styles.section}>
-        <div>
-          <label className={styles.label}>Notes</label>
-          <textarea {...register("notes")} className={styles.textarea} />
+        <div className={`${styles.itemsTotal} ${styles.itemsSubtotal}`}>
+          <span>Subtotal</span>
+          <span>
+            {currencies.find((c) => c.code === formData.currency)?.symbol || formData.currency}
+            { ' ' }
+            {subtotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </span>
         </div>
-        <div>
-          <label className={styles.label}>Payment Instructions</label>
-          <textarea
-            {...register("paymentInstructions")}
-            className={styles.textarea}
-          />
+        <div style={{ marginBottom: 12 }}>
+          <label className={`${styles.label} ${styles.taxRateLabel}`}>Tax Rate (optional)</label>
+          <div style={{ position: 'relative' }}>
+            <input
+              type="number"
+              {...register('taxRate', { valueAsNumber: true })}
+              className={styles.input}
+              placeholder="%"
+              style={{ paddingRight: '2.5rem' }}
+            />
+            <span style={{
+              position: 'absolute',
+              right: '1rem',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              color: '#888',
+              fontWeight: 500,
+            }}>%</span>
+          </div>
+        </div>
+        {showShipping ? (
+          <div style={{ marginBottom: 12 }}>
+            <label className={`${styles.label} ${styles.taxRateLabel}`}>Shipping</label>
+            <div style={{ position: 'relative' }}>
+              <input
+                type="number"
+                {...register('shipping', { valueAsNumber: true })}
+                className={styles.input}
+                placeholder="Shipping amount"
+                min={0}
+              />
+              <span style={{
+                position: 'absolute',
+                right: '1rem',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: '#888',
+                fontWeight: 500,
+              }}>
+                {currencies.find((c) => c.code === formData.currency)?.symbol || formData.currency}
+              </span>
+            </div>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setShowShipping(true)}
+            className={styles.shippingButton}
+            >
+            + Shipping
+          </button>
+        )}
+        <hr style={{ margin: '16px 0' }} />
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: 600, fontSize: '1.25rem' }}>
+          <span>Total</span>
+          <span>
+            {currencies.find((c) => c.code === formData.currency)?.symbol || formData.currency}
+            { ' ' }
+            {(subtotal + ((subtotal * (Number(formData.taxRate) || 0)) / 100) + (Number(formData.shipping) || 0)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </span>
         </div>
       </div>
 
@@ -657,12 +740,25 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
           type="button"
           className={styles.button}
           onClick={handleDownloadPDF}
+          style={{flex: 1}}
         >
           Download as PDF
         </button>
-        <button type="button" className={styles.button}>
+        <button type="button" className={styles.button} style={{flex: 1}}>
           Email Invoice
         </button>
+      </div>
+
+      {/* add disclaimer section */}
+      <div>
+        <p className={styles.termsLink}>
+          By using the "Invoice Generator", you acknowledge that you have read,
+          understood, and agree to be bound by Rho's Terms of Service and
+          Privacy Policy, as may be updated from time to time. You hereby grant
+          Rho the right to collect, store, process, and use any information you
+          provide through the Invoice Generator in accordance with our Privacy
+          Policy and applicable laws.
+        </p>
       </div>
 
       {/* Styled Invoice Preview Section */}
@@ -687,7 +783,11 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
           <InvoicePreview invoice={getInvoicePreviewData()} />
         </div>
         {/* Visible, full-size preview for PDF generation (for testing) */}
-        <div ref={hiddenPreviewRef} aria-hidden="false">
+        <div
+          ref={hiddenPreviewRef}
+          aria-hidden="false"
+          className={styles.pdfPreviewMobileHidden}
+        >
           <InvoicePreview invoice={getInvoicePreviewData()} />
         </div>
       </div>

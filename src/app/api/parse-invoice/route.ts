@@ -16,6 +16,7 @@ Return a JSON object with these exact keys:
 - currency (string)
 - notes (string, optional)
 - paymentInstructions (string, optional)
+- shipping (number, optional)
 
 If any field is not mentioned in the text, set it to null. Do not use any other keys or change the key names. Only return the JSON object.`
 

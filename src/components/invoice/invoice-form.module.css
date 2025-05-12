@@ -12,7 +12,7 @@
   flex-direction: column;
   gap: 1rem;
   /* mobile */
-  min-height: 360px;
+  /* min-height: 360px; */
 }
 
 .itemsSection {
@@ -61,6 +61,10 @@
 .select:focus {
   border-color: #38bdf8;
   outline: none;
+}
+
+.textarea {
+  min-height: 200px;
 }
 
 .row {
@@ -124,7 +128,7 @@
 
 .addItemBtn {
   background: #151716;
-  padding:16px;
+  padding: 16px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -134,12 +138,12 @@
   font-size: 16px;
   font-style: normal;
   font-weight: 500;
-  line-height: 16px; 
+  line-height: 16px;
   width: fit-content;
 }
 /* add :before of a + icon */
 .addItemBtn:before {
-  content: '+';
+  content: "+";
   margin-right: 8px;
 }
 /* .addItemBtn:hover {
@@ -315,6 +319,11 @@
   gap: 0.5rem;
 }
 
+.itemsSubtotal {
+  padding: unset;
+  background: unset;
+}
+
 .itemsTotalAmount {
   margin-left: 0.25rem;
   margin-right: 0.5rem;
@@ -323,4 +332,28 @@
 .itemsTotalCurrency {
   font-size: 0.95rem;
   color: #0a0a0a;
+}
+
+.taxRateLabel {
+  margin-bottom: 0.5rem;
+}
+
+.shippingButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: fit-content;
+  margin-left: auto;
+  color: var(--Rho-Revised-Teals-Caribbean-400, #00a688);
+  font-family: "Basier Circle";
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+@media (max-width: 992px) {
+  .pdfPreviewMobileHidden {
+    display: none !important;
+  }
 }

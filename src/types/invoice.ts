@@ -35,6 +35,7 @@ export interface Invoice {
 	notes?: string
 	paymentInstructions?: string
 	logo?: string
+	shipping?: number
 }
 
 export type Currency = {
@@ -57,4 +58,5 @@ export interface InvoiceFormData {
 	notes?: string
 	paymentInstructions?: string
 	logo?: string
+	shipping?: number
 } 
