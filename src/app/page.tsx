@@ -33,11 +33,8 @@ export default function Home() {
 	}
 
 	return (
-		<main className="min-h-screen bg-gray-50 py-8">
-			<div className="container mx-auto px-4">
-				<h1 className="text-3xl font-bold text-center mb-8">
-					AI Invoice Generator
-				</h1>
+		<main className="min-h-screen py-8">
+			<div className="container mx-auto px-4" style={{ paddingInline: '1rem', paddingBlock: '1rem', backgroundColor: 'var(--foreground)' }}>
 
 				<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 					<div className="bg-white p-6 rounded-lg shadow">

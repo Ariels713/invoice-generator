@@ -5,6 +5,10 @@
 	box-shadow: 0 2px 12px rgba(0,0,0,0.06);
 	max-width: 800px;
 	margin: 0 auto;
+	/* PDF-specific styles */
+	-webkit-print-color-adjust: exact !important;
+	print-color-adjust: exact !important;
+	color-adjust: exact !important;
 }
 
 .header {
@@ -16,7 +20,13 @@
 
 .logo {
 	height: 64px;
+	width: auto;
+	max-width: 200px;
+	object-fit: contain;
 	margin-bottom: 1rem;
+	-webkit-print-color-adjust: exact !important;
+	print-color-adjust: exact !important;
+	color-adjust: exact !important;
 }
 
 .title {
@@ -39,10 +49,16 @@
 	padding: 0.75rem 0.5rem;
 	border-bottom: 1px solid #e5e7eb;
 	text-align: left;
+	-webkit-print-color-adjust: exact !important;
+	print-color-adjust: exact !important;
+	color-adjust: exact !important;
 }
 .table th {
 	font-weight: 600;
 	background: #f4f8f6;
+	-webkit-print-color-adjust: exact !important;
+	print-color-adjust: exact !important;
+	color-adjust: exact !important;
 }
 .table td {
 	font-size: 1rem;
