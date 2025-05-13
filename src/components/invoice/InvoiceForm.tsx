@@ -8,8 +8,8 @@ import { parseInvoiceText } from "@/lib/ai-service";
 import styles from "./invoice-form.module.css";
 import { InvoicePreview } from "./InvoicePreview";
 import { useRef, useState } from "react";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
+import { PDFDownloadLink } from '@react-pdf/renderer'
+import { InvoicePDF } from './InvoicePDF'
 import { generateInvoiceName } from "@/lib/generate-invoice-name";
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
@@ -180,31 +180,26 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
     }
   };
 
-  const handleDownloadPDF = async () => {
-    if (!hiddenPreviewRef.current) return;
-    const node = hiddenPreviewRef.current.querySelector("div");
-    if (!node) return;
-    try {
-      const canvas = await html2canvas(node, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-      });
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
-      });
-      const imgProps = pdf.getImageProperties(imgData);
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`invoice-${formData.invoiceNumber || "preview"}.pdf`);
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-    }
-  };
+  const handleDownloadPDF = () => {
+    // The PDFDownloadLink component will handle the download
+    return (
+      <PDFDownloadLink
+        document={<InvoicePDF invoice={getInvoicePreviewData()} />}
+        fileName={`invoice-${formData.invoiceNumber || 'preview'}.pdf`}
+      >
+        {({ loading }) => (
+          <button
+            type="button"
+            className={styles.button}
+            style={{ flex: 1 }}
+            disabled={loading}
+          >
+            {loading ? 'Generating PDF...' : 'Download as PDF'}
+          </button>
+        )}
+      </PDFDownloadLink>
+    )
+  }
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -770,14 +765,7 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
           marginTop: "2rem",
         }}
       >
-        <button
-          type="button"
-          className={styles.button}
-          onClick={handleDownloadPDF}
-          style={{ flex: 1 }}
-        >
-          Download as PDF
-        </button>
+        {handleDownloadPDF()}
         <button type="button" className={styles.button} style={{ flex: 1 }}>
           Email Invoice
         </button>
