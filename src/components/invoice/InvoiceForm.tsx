@@ -244,9 +244,10 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
   );
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
-      {/* AI Input Section */}
-      <div className={styles.section}>
+    <div className={styles.container}>
+      <form onSubmit={handleSubmit(onSubmit)} className={styles.form} style={{flex: 1}}>
+        {/* AI Input Section */}
+        <div className={styles.section}>
         <div
           className={styles.row}
           style={{ gap: ".5rem", alignItems: "center", marginBlockEnd: "0" }}
@@ -324,14 +325,18 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
 
       <div className={styles.row}>
         <div className={styles.col}>
-          <label className={styles.labelHeader}>Upload File</label>
+          <label className={styles.labelHeader}>
+            {formData.logo ? 'Uploaded File' : 'Upload File'}
+          </label>
           <div className={styles.logoUpload}>
-            <input
-              type="file"
-              accept="image/jpeg,image/jpg,image/png"
-              onChange={handleLogoUpload}
-              className={styles.input}
-            />
+            {!formData.logo && (
+              <input
+                type="file"
+                accept="image/jpeg,image/jpg,image/png"
+                onChange={handleLogoUpload}
+                className={styles.input}
+              />
+            )}
             {formData.logo && (
               <div className={styles.logoPreview}>
                 <img
@@ -789,34 +794,25 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
           Policy and applicable laws.
         </p>
       </div>
+      </form>
 
       {/* Styled Invoice Preview Section */}
       <div
         style={{
-          display: "flex",
-          flexDirection: "row",
-          gap: "2rem",
-          marginTop: "3rem",
-          alignItems: "flex-start",
+          flex: 1
         }}
       >
         {/* Visible, scaled-down preview */}
         <div
-          style={{
-            flex: 1,
-            transform: "scale(0.7)",
-            transformOrigin: "top left",
-            minWidth: 0,
-          }}
           className={styles.pdfPreviewMobileHidden}
         >
           <InvoicePreview invoice={getInvoicePreviewData()} />
         </div>
         {/* Visible, full-size preview for PDF generation (for testing) */}
-        <div ref={hiddenPreviewRef} aria-hidden="false">
+        <div ref={hiddenPreviewRef} aria-hidden="false" style={{display: "none"}}>
           <InvoicePreview invoice={getInvoicePreviewData()} />
         </div>
       </div>
-    </form>
+    </div>
   );
 }

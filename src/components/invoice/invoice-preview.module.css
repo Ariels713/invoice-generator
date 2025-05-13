@@ -1,105 +1,130 @@
+
 .previewContainer {
-	background: #fff;
-	padding: 2rem;
-	border-radius: 12px;
-	box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-	max-width: 800px;
-	margin: 0 auto;
-	/* PDF-specific styles */
-	-webkit-print-color-adjust: exact !important;
-	print-color-adjust: exact !important;
-	color-adjust: exact !important;
+  background: #fff;
+  padding: 2rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  max-width: 800px;
+  margin: 0 auto;
+  /* PDF-specific styles */
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+  color-adjust: exact !important;
+}
+
+@media (max-width: 992px) {
+	.previewWrapper {
+	  display: none !important;
+	}
+  }
+
+.previewCopy {
+  color: var(--Rho-Revised-Neutrals-Abyss-500, #151716);
+  font-family: Degular;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 110%;
+  margin-bottom: 1rem;
 }
 
 .header {
-	display: flex;
-	justify-content: space-between;
-	align-items: flex-start;
-	margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
 }
 
 .logo {
-	height: 64px;
-	width: auto;
-	max-width: 200px;
-	object-fit: contain;
-	margin-bottom: 1rem;
-	-webkit-print-color-adjust: exact !important;
-	print-color-adjust: exact !important;
-	color-adjust: exact !important;
+  height: 64px;
+  width: auto;
+  max-width: 200px;
+  object-fit: contain;
+  margin-bottom: 1rem;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+  color-adjust: exact !important;
 }
 
 .title {
-	font-size: 2rem;
-	font-weight: bold;
-	margin-bottom: 0.5rem;
+  color: var(--Rho-Revised-Neutrals-Abyss-500, #151716);
+  font-family: "Degular Display, sans-serif";
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 44px;
 }
 
 .companyInfo {
-	margin-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .table {
-	width: 100%;
-	border-collapse: collapse;
-	margin-bottom: 2rem;
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 2rem;
 }
 .table th,
 .table td {
-	padding: 0.75rem 0.5rem;
-	border-bottom: 1px solid #e5e7eb;
-	text-align: left;
-	-webkit-print-color-adjust: exact !important;
-	print-color-adjust: exact !important;
-	color-adjust: exact !important;
+  padding: 0.75rem 0.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+  color-adjust: exact !important;
 }
 .table th {
-	font-weight: 600;
-	background: #f4f8f6;
-	-webkit-print-color-adjust: exact !important;
-	print-color-adjust: exact !important;
-	color-adjust: exact !important;
+  font-weight: 600;
+  background: #f4f8f6;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+  color-adjust: exact !important;
 }
 .table td {
-	font-size: 1rem;
+  font-size: 1rem;
 }
 
 .totals {
-	display: flex;
-	flex-direction: column;
-	align-items: flex-end;
-	gap: 0.5rem;
-	margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
 }
 .totalRow {
-	display: flex;
-	justify-content: space-between;
-	width: 250px;
-	font-size: 1rem;
+  display: flex;
+  justify-content: space-between;
+  width: 250px;
+  font-size: 1rem;
 }
 .totalRow.bold {
-	font-weight: bold;
+  font-weight: bold;
 }
 
 .notes {
-	margin-top: 2rem;
-	padding-top: 1.5rem;
-	border-top: 1px solid #e5e7eb;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e5e7eb;
 }
 
 .downloadBtn {
-	background: #0ea5e9;
-	color: #fff;
-	padding: 0.6rem 1.5rem;
-	border: none;
-	border-radius: 6px;
-	font-size: 1rem;
-	font-weight: 600;
-	cursor: pointer;
-	transition: background 0.2s;
-	margin-bottom: 1rem;
-	float: right;
+  background: #0ea5e9;
+  color: #fff;
+  padding: 0.6rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-bottom: 1rem;
+  float: right;
 }
 .downloadBtn:hover {
-	background: #0369a1;
-} 
+  background: #0369a1;
+}
+
+.invoiceDetails {
+	display: flex;
+	flex-wrap: nowrap;
+	justify-content: space-between;
+}

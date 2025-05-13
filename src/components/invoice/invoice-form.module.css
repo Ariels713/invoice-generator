@@ -4,6 +4,18 @@
   gap: 1rem;
 }
 
+/* .container on mobile should be vertical, desktop should be horizontal */
+@media (max-width: 992px) {
+  .container {
+    flex-direction: column;
+  }
+}
+
+.container {
+  display: flex;
+  gap: 1rem;
+}
+
 .section {
   background: #f4f8f6;
   border-radius: 8px;
@@ -350,10 +362,4 @@
   font-style: normal;
   font-weight: 500;
   line-height: 16px;
-}
-
-@media (max-width: 992px) {
-  .pdfPreviewMobileHidden {
-    display: none !important;
-  }
 }
