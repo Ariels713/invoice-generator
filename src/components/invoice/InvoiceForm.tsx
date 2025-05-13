@@ -1,3 +1,5 @@
+'use client'
+
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -8,8 +10,7 @@ import { parseInvoiceText } from "@/lib/ai-service";
 import styles from "./invoice-form.module.css";
 import { InvoicePreview } from "./InvoicePreview";
 import { useRef, useState } from "react";
-import { PDFDownloadLink } from '@react-pdf/renderer'
-import { InvoicePDF } from './InvoicePDF'
+import { PDFDownloadButton } from './PDFDownloadButton'
 import { generateInvoiceName } from "@/lib/generate-invoice-name";
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
@@ -120,6 +121,7 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
       return {
         id: String(idx),
         description: item.description,
+        issueDate: item.issueDate,
         quantity: Number(item.quantity),
         rate: Number(item.rate),
         amount,
@@ -146,6 +148,7 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
       notes: formData.notes,
       paymentInstructions: formData.paymentInstructions,
       logo: formData.logo,
+      shipping,
     };
   };
 
@@ -181,23 +184,11 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
   };
 
   const handleDownloadPDF = () => {
-    // The PDFDownloadLink component will handle the download
     return (
-      <PDFDownloadLink
-        document={<InvoicePDF invoice={getInvoicePreviewData()} />}
-        fileName={`invoice-${formData.invoiceNumber || 'preview'}.pdf`}
-      >
-        {({ loading }) => (
-          <button
-            type="button"
-            className={styles.button}
-            style={{ flex: 1 }}
-            disabled={loading}
-          >
-            {loading ? 'Generating PDF...' : 'Download as PDF'}
-          </button>
-        )}
-      </PDFDownloadLink>
+      <PDFDownloadButton 
+        invoice={getInvoicePreviewData()} 
+        invoiceNumber={formData.invoiceNumber}
+      />
     )
   }
 
@@ -240,7 +231,7 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
 
   return (
     <div className={styles.container}>
-      <form onSubmit={handleSubmit(onSubmit)} className={styles.form} style={{flex: 1}}>
+      <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
         {/* AI Input Section */}
         <div className={styles.section}>
         <div
@@ -279,7 +270,7 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
         </div>
         <textarea
           className={styles.textarea}
-          placeholder="Enter invoice details in plain text..."
+          placeholder="Include as much detail about your invoice as possible, and we will automatically fill out fields based on the data entered, saving you time. "
           value={aiInputText}
           onChange={(e) => setAiInputText(e.target.value)}
           disabled={isGenerating}
@@ -302,24 +293,23 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
         </a>
       </div>
 
-      {/* Basic Invoice Info */}
-      <div className={styles.row}>
-        <div className={styles.col}>
+      {/* Basic Invoice Info and Logo Upload */}
+      <div className={styles.basicInfoContainer}>
+        <div className={styles.basicInfoCol}>
           <label className={styles.labelHeader}>Invoice Name</label>
           <input
             type="text"
             {...register("invoiceName")}
             className={styles.input}
             placeholder="Short description (3-5 words)"
+            style={{ maxHeight: "48px" }}
           />
           {errors.invoiceName && (
             <p className={styles.error}>{errors.invoiceName.message}</p>
           )}
         </div>
-      </div>
 
-      <div className={styles.row}>
-        <div className={styles.col}>
+        <div className={styles.basicInfoCol}>
           <label className={styles.labelHeader}>
             {formData.logo ? 'Uploaded File' : 'Upload File'}
           </label>
@@ -330,6 +320,7 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
                 accept="image/jpeg,image/jpg,image/png"
                 onChange={handleLogoUpload}
                 className={styles.input}
+                style={{ paddingBlock: "11px" }}
               />
             )}
             {formData.logo && (
@@ -344,7 +335,7 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
                   onClick={() => setValue("logo", "")}
                   className={styles.removeLogoBtn}
                 >
-                  Remove
+                  X
                 </button>
               </div>
             )}
@@ -354,8 +345,8 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
       </div>
 
       {/* Company Information */}
-      <div className={styles.row}>
-        <div className={styles.col}>
+      <div className={styles.companyInfoContainer}>
+        <div className={styles.companyInfoCol}>
           <h3 className={styles.labelHeader}>Your company info</h3>
           <input
             type="text"
@@ -381,7 +372,7 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
             className={styles.input}
             placeholder="Address Line 2 (Optional)"
           />
-          <div className={styles.row}>
+          <div className={styles.addressRow}>
             <input
               type="text"
               {...register("sender.city")}
@@ -395,7 +386,7 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
               placeholder="Zip Code"
             />
           </div>
-          <div className={styles.row}>
+          <div className={styles.addressRow}>
             <select
               {...register("sender.state")}
               className={styles.select}
@@ -418,11 +409,8 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
             placeholder="Phone Number"
           />
         </div>
-      </div>
 
-      {/* Receiving Company Information */}
-      <div className={styles.row}>
-        <div className={styles.col}>
+        <div className={styles.companyInfoCol}>
           <h3 className={styles.labelHeader}>Receiving company info</h3>
           <input
             type="text"
@@ -448,8 +436,7 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
             className={styles.input}
             placeholder="Address Line 2 (Optional)"
           />
-
-          <div className={styles.row}>
+          <div className={styles.addressRow}>
             <input
               type="text"
               {...register("recipient.city")}
@@ -463,7 +450,7 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
               placeholder="Zip Code"
             />
           </div>
-          <div className={styles.row}>
+          <div className={styles.addressRow}>
             <select
               {...register("recipient.state")}
               className={styles.select}
@@ -785,19 +772,8 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
       </form>
 
       {/* Styled Invoice Preview Section */}
-      <div
-        style={{
-          flex: 1
-        }}
-      >
-        {/* Visible, scaled-down preview */}
-        <div
-          className={styles.pdfPreviewMobileHidden}
-        >
-          <InvoicePreview invoice={getInvoicePreviewData()} />
-        </div>
-        {/* Visible, full-size preview for PDF generation (for testing) */}
-        <div ref={hiddenPreviewRef} aria-hidden="false" style={{display: "none"}}>
+      <div className={styles.invoicePreview}>
+        <div className={styles.pdfPreviewMobileHidden}>
           <InvoicePreview invoice={getInvoicePreviewData()} />
         </div>
       </div>

@@ -1,12 +1,23 @@
+"use client";
+
 import { useRef } from "react";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 import { Invoice } from "@/types/invoice";
 import { formatCurrency } from "@/lib/currencies";
 import styles from "./invoice-preview.module.css";
 
 interface InvoicePreviewProps {
   invoice: Invoice;
+}
+
+function formatPeriodDate(dateString: string): string {
+  if (!dateString) return ''; // Return empty string if no date is provided
+  
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return ''; // Return empty string if date is invalid
+  
+  const month = date.toLocaleString('default', { month: 'long' });
+  const year = date.getFullYear().toString().slice(-2);
+  return `${month} '${year}`;
 }
 
 export function InvoicePreview({ invoice }: InvoicePreviewProps) {
@@ -36,13 +47,18 @@ export function InvoicePreview({ invoice }: InvoicePreviewProps) {
         {/* Invoice Number */}
         <div className={styles.invoiceDetails}>
           <div>
-			<p><strong>Invoice #</strong>Payable to {invoice.recipient.name}</p>
-            <p style={{ fontWeight: 600 }}>{invoice.invoiceNumber}</p>
-            <p>Date: {invoice.date}</p>
-            <p>Due Date: {invoice.dueDate}</p>
+            <p className={styles.invoiceDetailsHeader}>
+              Payable {formatCurrency(invoice.total, invoice.currency)}
+            </p>
+
+            <p className={styles.invoiceDetailsSubHeader}>
+              Due: {invoice.dueDate}
+            </p>
+            <p>Issued: {invoice.date}</p>
+            <p>Ref: {invoice.invoiceNumber}</p>
           </div>
           <div className={styles.companyInfo}>
-            <h2 className={styles.label}>From:</h2>
+            <h2 className={styles.invoiceDetailsHeader}>From:</h2>
             <p>{invoice.sender.name}</p>
             <p>{invoice.sender.address}</p>
             <p>
@@ -54,7 +70,7 @@ export function InvoicePreview({ invoice }: InvoicePreviewProps) {
             <p>{invoice.sender.phone}</p>
           </div>
           <div className={styles.companyInfo}>
-            <h2 className={styles.label}>To:</h2>
+            <h2 className={styles.invoiceDetailsHeader}>To:</h2>
             <p>{invoice.recipient.name}</p>
             <p>{invoice.recipient.address}</p>
             <p>
@@ -68,33 +84,41 @@ export function InvoicePreview({ invoice }: InvoicePreviewProps) {
         </div>
 
         {/* Company Information */}
-
+        {/* Table Name / */}
+        <div className={styles.invoiceNameContainer}>
+          {invoice.invoiceName && (
+            <p className={styles.invoiceName}>{invoice.invoiceName}</p>
+          )}
+        </div>
         {/* Items Table */}
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Description</th>
-              <th style={{ textAlign: "right" }}>Quantity</th>
-              <th style={{ textAlign: "right" }}>Rate</th>
-              <th style={{ textAlign: "right" }}>Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            {invoice.items.map((item, index) => (
-              <tr key={index}>
-                <td>{item.description}</td>
-                <td style={{ textAlign: "right" }}>{item.quantity}</td>
-                <td style={{ textAlign: "right" }}>
-                  {formatCurrency(item.rate, invoice.currency)}
-                </td>
-                <td style={{ textAlign: "right" }}>
-                  {formatCurrency(item.amount, invoice.currency)}
-                </td>
+        <div className={styles.tableContainer}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th style={{ textAlign: "right" }}>Period</th>
+                <th style={{ textAlign: "right" }}>QTY</th>
+                <th style={{ textAlign: "right" }}>RATE</th>
+                <th style={{ textAlign: "right" }}>AMOUNT</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-
+            </thead>
+            <tbody>
+              {invoice.items.map((item, index) => (
+                <tr key={index}>
+                  <td style={{ fontWeight: 600 }}>{item.description}</td>
+                  <td style={{ textAlign: "right" }}>{formatPeriodDate(item.issueDate)}</td>
+                  <td style={{ textAlign: "right" }}>{item.quantity}</td>
+                  <td style={{ textAlign: "right" }}>
+                    {formatCurrency(item.rate, invoice.currency)}
+                  </td>
+                  <td style={{ textAlign: "right" }}>
+                    {formatCurrency(item.amount, invoice.currency)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         {/* Totals */}
         <div className={styles.totals}>
           <div className={styles.totalRow}>
@@ -105,6 +129,13 @@ export function InvoicePreview({ invoice }: InvoicePreviewProps) {
             <span>Tax ({invoice.taxRate}%):</span>
             <span>{formatCurrency(invoice.taxAmount, invoice.currency)}</span>
           </div>
+          {(invoice.shipping !== undefined && invoice.shipping !== null && invoice.shipping > 0) && (
+            <div className={styles.totalRow}>
+              <span>Shipping:</span>
+              <span>{formatCurrency(invoice.shipping, invoice.currency)}</span>
+            </div>
+          )}
+          <div className={styles.totalDivider} />
           <div className={`${styles.totalRow} ${styles.bold}`}>
             <span>Total:</span>
             <span>{formatCurrency(invoice.total, invoice.currency)}</span>

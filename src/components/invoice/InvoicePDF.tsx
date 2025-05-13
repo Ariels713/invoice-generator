@@ -1,3 +1,5 @@
+'use client'
+
 import { Document, Page, Text, View, StyleSheet, Image, Font } from '@react-pdf/renderer'
 import { Invoice } from '@/types/invoice'
 import { formatCurrency } from '@/lib/currencies'
@@ -181,6 +183,12 @@ export function InvoicePDF({ invoice }: InvoicePDFProps) {
             <Text style={styles.text}>Tax ({invoice.taxRate}%):</Text>
             <Text style={styles.text}>{formatCurrency(invoice.taxAmount, invoice.currency)}</Text>
           </View>
+          {invoice.shipping > 0 && (
+            <View style={styles.totalRow}>
+              <Text style={styles.text}>Shipping:</Text>
+              <Text style={styles.text}>{formatCurrency(invoice.shipping, invoice.currency)}</Text>
+            </View>
+          )}
           <View style={styles.totalRow}>
             <Text style={styles.textBold}>Total:</Text>
             <Text style={styles.textBold}>{formatCurrency(invoice.total, invoice.currency)}</Text>
