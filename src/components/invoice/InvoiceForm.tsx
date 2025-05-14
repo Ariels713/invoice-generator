@@ -1,6 +1,7 @@
 'use client'
 
 import { useForm, useFieldArray } from "react-hook-form";
+import { Resolver } from 'react-hook-form';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { InvoiceFormData, Company, Invoice } from "@/types/invoice";
@@ -48,13 +49,7 @@ const invoiceSchema = z.object({
   currency: z.string().min(1, "Currency is required"),
   notes: z.string().optional(),
   paymentInstructions: z.string().optional(),
-  logo: z
-    .string()
-    .optional()
-    .refine((val) => {
-      if (!val) return true; // Optional
-      return val.startsWith("data:image/");
-    }, "Invalid image format"),
+  logo: z.string().optional(),
   shipping: z.number().min(0, "Shipping must be positive").optional(),
 });
 
@@ -85,9 +80,10 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
     control,
     setValue,
     watch,
+    setError,
     formState: { errors },
   } = useForm<InvoiceFormData>({
-    resolver: zodResolver(invoiceSchema),
+    resolver: zodResolver(invoiceSchema) as Resolver<InvoiceFormData>,
     defaultValues: {
       invoiceName: "",
       currency: "USD",
@@ -182,15 +178,6 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
       setIsGenerating(false);
     }
   };
-
-  const handleDownloadPDF = () => {
-    return (
-      <PDFDownloadButton 
-        invoice={getInvoicePreviewData()} 
-        invoiceNumber={formData.invoiceNumber}
-      />
-    )
-  }
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -747,7 +734,10 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
       </div>
       {/* Action Buttons */}
       <div className={styles.actionButtons}>
-        {handleDownloadPDF()}
+        <PDFDownloadButton 
+          invoice={getInvoicePreviewData()} 
+          invoiceNumber={formData.invoiceNumber}
+        />
         <button type="button" className={styles.button} style={{ flex: 1 }}>
           Email invoice to me
         </button>

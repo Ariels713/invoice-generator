@@ -5,7 +5,7 @@ export interface Company {
 	address2: string
 	city: string
 	postalCode: string
-	country?: string
+	country: string
 	state: string
 	phone: string
 }
@@ -16,6 +16,7 @@ export interface InvoiceItem {
 	quantity: number
 	rate: number
 	amount: number
+	issueDate: string
 }
 
 export interface Invoice {
@@ -36,6 +37,7 @@ export interface Invoice {
 	paymentInstructions?: string
 	logo?: string
 	shipping?: number
+	alt?: string
 }
 
 export type Currency = {

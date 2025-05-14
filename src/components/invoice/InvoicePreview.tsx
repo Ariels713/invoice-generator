@@ -66,8 +66,7 @@ export function InvoicePreview({ invoice }: InvoicePreviewProps) {
             <p>{invoice.sender.name}</p>
             <p>{invoice.sender.address}</p>
             <p>
-              {invoice.sender.city}, {invoice.sender.state}{" "}
-              {invoice.sender.zipCode}
+              {invoice.sender.city}, {invoice.sender.state} {invoice.sender.postalCode}
             </p>
             <p>{invoice.sender.country}</p>
             <p>{invoice.sender.email}</p>
@@ -78,8 +77,7 @@ export function InvoicePreview({ invoice }: InvoicePreviewProps) {
             <p>{invoice.recipient.name}</p>
             <p>{invoice.recipient.address}</p>
             <p>
-              {invoice.recipient.city}, {invoice.recipient.state}{" "}
-              {invoice.recipient.zipCode}
+              {invoice.recipient.city}, {invoice.recipient.state} {invoice.recipient.postalCode}
             </p>
             <p>{invoice.recipient.country}</p>
             <p>{invoice.recipient.email}</p>
