@@ -34,14 +34,14 @@ export default function Home() {
 
 	return (
 		<main className="min-h-screen py-8">
-			<div className="container mx-auto px-4" style={{ paddingInline: '1rem', paddingBlock: '1rem', backgroundColor: 'var(--foreground)' }}>
+			<div className="container" style={{ paddingInline: '1rem', paddingBlock: '1rem', backgroundColor: 'var(--foreground)' }}>
 
-				<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-					<div className="bg-white p-6 rounded-lg shadow">
+				<div>
+					<div>
 						<InvoiceForm onSubmit={handleFormSubmit} />
 					</div>
 
-					<div className="bg-white p-6 rounded-lg shadow">
+					{/* <div className="bg-white p-6 rounded-lg shadow">
 						{invoice ? (
 							<InvoicePreview invoice={invoice} />
 						) : (
@@ -49,7 +49,7 @@ export default function Home() {
 								Fill out the form to see a preview of your invoice
 							</div>
 						)}
-					</div>
+					</div> */}
 				</div>
 			</div>
 		</main>

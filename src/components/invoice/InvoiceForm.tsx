@@ -277,12 +277,11 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
         />
         <button
           type="button"
-          className={`${styles.button} ${isGenerating ? styles.buttonLoading : ""}`}
-          style={{ marginTop: "1rem" }}
+          className={`${styles.button} ${styles.autofillInvoiceButton} ${isGenerating ? styles.buttonLoading : ""}`}
           onClick={handleAIParse}
           disabled={isGenerating || !aiInputText.trim()}
         >
-          {isGenerating ? "Generating..." : "Generate Invoice"}
+          {isGenerating ? "Autofilling..." : "Autofill Invoice"}
         </button>
       </div>
 
@@ -578,7 +577,7 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
                 onClick={() => remove(index)}
                 className={styles.removeBtn}
               >
-                Remove
+                X
               </button>
             )}
           </div>
@@ -597,7 +596,7 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
         >
           Add Item
         </button>
-        <div className={styles.itemsTotal}>
+        <div style={{display: 'none'}} className={styles.itemsTotal}>
           <span>Total:&nbsp;</span>
           <div className={styles.itemsTotalAmount}>
             <span>
@@ -616,11 +615,11 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
           </span> */}
         </div>
       </div>
-
+      <div className={styles.paymentDetailsContainer}>
       {/* Notes and Payment Instructions */}
       <div className={`${styles.section} ${styles.itemsSection}`}>
         <h3 className={styles.labelHeader}>Payment Details</h3>
-        <div className={styles.itemStack}>
+        <div className={`${styles.itemStack} ${styles.paymentDetailsStack}`}>
           <div className={styles.col}>
             <label className={styles.label}>Payment Instructions</label>
             <input
@@ -742,19 +741,12 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
           </span>
         </div>
       </div>
-
+      </div>
       {/* Action Buttons */}
-      <div
-        style={{
-          display: "flex",
-          gap: "1rem",
-          justifyContent: "flex-end",
-          marginTop: "2rem",
-        }}
-      >
+      <div className={styles.actionButtons}>
         {handleDownloadPDF()}
         <button type="button" className={styles.button} style={{ flex: 1 }}>
-          Email Invoice
+          Email invoice to me
         </button>
       </div>
 

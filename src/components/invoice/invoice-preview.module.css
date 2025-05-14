@@ -190,3 +190,46 @@
   font-size: 12px;
   font-weight: 600;
 }
+
+.itemStack {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+/* Description field - gets more space */
+.itemStack .col:first-child {
+  flex-grow: 2;
+  flex-basis: 200px;
+}
+
+/* Date field */
+.itemStack .col:nth-child(2) {
+  flex-grow: 1;
+  flex-basis: 150px;
+}
+
+/* Quantity field */
+.itemStack .col:nth-child(3) {
+  flex-grow: 1;
+  flex-basis: 120px;
+}
+
+/* Rate field */
+.itemStack .col:nth-child(4) {
+  flex-grow: 1;
+  flex-basis: 150px;
+}
+
+/* Remove button */
+.itemStack .removeBtn {
+  flex-grow: 1;
+  flex-basis: 80px;
+  align-self: flex-end;
+  margin-top: 2rem;
+}
