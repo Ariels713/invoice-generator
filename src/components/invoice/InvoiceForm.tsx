@@ -9,7 +9,7 @@ import { usStates } from "@/lib/states";
 import { parseInvoiceText } from "@/lib/ai-service";
 import styles from "./invoice-form.module.css";
 import { InvoicePreview } from "./InvoicePreview";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { PDFDownloadButton } from './PDFDownloadButton'
 import { generateInvoiceName } from "@/lib/generate-invoice-name";
 import Image from 'next/image'
@@ -114,7 +114,6 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
   });
 
   const formData = watch();
-  const hiddenPreviewRef = useRef<HTMLDivElement>(null);
 
   const getInvoicePreviewData = (): Invoice => {
     const items = (formData.items || []).map((item, idx) => {
@@ -757,8 +756,8 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
       {/* add disclaimer section */}
       <div>
         <p className={styles.termsLink}>
-          By using the "Invoice Generator", you acknowledge that you have read,
-          understood, and agree to be bound by Rho's Terms of Service and
+          By using the &ldquo;Invoice Generator&rdquo;, you acknowledge that you have read,
+          understood, and agree to be bound by Rho&apos;s Terms of Service and
           Privacy Policy, as may be updated from time to time. You hereby grant
           Rho the right to collect, store, process, and use any information you
           provide through the Invoice Generator in accordance with our Privacy
