@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { Invoice } from "@/types/invoice";
 import { formatCurrency } from "@/lib/currencies";
 import styles from "./invoice-preview.module.css";
+import Image from 'next/image'
 
 interface InvoicePreviewProps {
   invoice: Invoice;
@@ -33,10 +34,13 @@ export function InvoicePreview({ invoice }: InvoicePreviewProps) {
         <div className={styles.header}>
           <h1 className={styles.title}>INVOICE</h1>
           {invoice.logo && (
-            <img
+            <Image
               src={invoice.logo}
               alt="Company Logo"
               className={styles.logo}
+              width={150}
+              height={150}
+              style={{ objectFit: 'contain' }}
             />
           )}
           {/* {invoice.invoiceName && (
