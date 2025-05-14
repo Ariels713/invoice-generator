@@ -12,6 +12,7 @@ import { InvoicePreview } from "./InvoicePreview";
 import { useRef, useState } from "react";
 import { PDFDownloadButton } from './PDFDownloadButton'
 import { generateInvoiceName } from "@/lib/generate-invoice-name";
+import Image from 'next/image'
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
@@ -324,10 +325,13 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
             )}
             {formData.logo && (
               <div className={styles.logoPreview}>
-                <img
+                <Image
                   src={formData.logo}
                   alt="Company Logo Preview"
                   className={styles.previewImage}
+                  width={100}
+                  height={100}
+                  style={{ objectFit: 'contain' }}
                 />
                 <button
                   type="button"
