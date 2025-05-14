@@ -8,15 +8,15 @@ import { Invoice } from '@/types/invoice'
 export default function Home() {
 	const [invoice, setInvoice] = useState<Invoice | null>(null)
 
-	const handleFormSubmit = (data: any) => {
+	const handleFormSubmit = (data: InvoiceFormData) => {
 		// Calculate totals
-		const items = data.items.map((item: any) => ({
+		const items = data.items.map((item: Omit<InvoiceItem, 'id' | 'amount'>) => ({
 			...item,
 			id: crypto.randomUUID(),
 			amount: item.quantity * item.rate
 		}))
 
-		const subtotal = items.reduce((sum: number, item: any) => sum + item.amount, 0)
+		const subtotal = items.reduce((sum: number, item: InvoiceItem) => sum + item.amount, 0)
 		const taxAmount = (subtotal * data.taxRate) / 100
 		const total = subtotal + taxAmount
 
