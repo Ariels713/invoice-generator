@@ -59,13 +59,38 @@
   margin-bottom: 0.5rem;
 }
 
+/* Common focus styles for all interactive elements */
+.input:focus,
+.textarea:focus,
+.select:focus,
+.button:focus,
+.autofillInvoiceButton:focus,
+.addItemBtn:focus,
+.removeBtn:focus,
+.shippingButton:focus {
+  border-color: #00a688;
+  box-shadow: 0 0 0 2px rgba(0, 166, 136, 0.2);
+  outline: none;
+}
+
+/* Common active styles for buttons */
+.button:active,
+.autofillInvoiceButton:active,
+.addItemBtn:active,
+.removeBtn:active,
+.shippingButton:active {
+  background: #00a688;
+  color: white;
+}
+
+/* Base input styles */
 .input,
 .textarea,
 .select {
   width: 100%;
   font-size: 1rem;
   background: #fff;
-  transition: border 0.2s;
+  transition: all 0.2s ease;
   color: #222;
   padding: 14px 16px;
   align-items: flex-start;
@@ -76,12 +101,117 @@
   border: 1px solid var(--border-interactive-neutral-idle, rgba(0, 0, 0, 0.12));
   background: var(--bg-interactive-neutral-idle, #fff);
 }
-.input:focus,
-.textarea:focus,
-.select:focus {
-  border-color: #00a688;
-  box-shadow: 0 0 0 2px rgba(0, 166, 136, 0.2);
-  outline: none;
+
+/* Base button styles */
+.button,
+.autofillInvoiceButton,
+.addItemBtn,
+.removeBtn,
+.shippingButton {
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+/* Specific button styles */
+.button {
+  background: #07ebc0;
+  color: #151716;
+  padding: 0.6rem 1.5rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  position: relative;
+  min-width: 160px;
+}
+
+.autofillInvoiceButton {
+  max-width: auto;
+  margin-top: 1rem;
+}
+
+.addItemBtn {
+  background: #151716;
+  padding: 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--Rho-Revised-Neutrals-Moon-100, #fff);
+  text-align: center;
+  font-family: "Basier Circle";
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 16px;
+  width: fit-content;
+}
+
+.removeBtn {
+  display: flex;
+  padding: 12px;
+  padding-block: 12px;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+  background: transparent;
+  color: #151816;
+  font-size: 0.95rem;
+  cursor: pointer;
+  border: transparent;
+}
+
+.shippingButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: fit-content;
+  margin-left: auto;
+  color: var(--Rho-Revised-Teals-Caribbean-400, #00a688);
+  font-family: "Basier Circle";
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+/* Disabled states */
+.button:disabled,
+.autofillInvoiceButton:disabled,
+.addItemBtn:disabled,
+.removeBtn:disabled,
+.shippingButton:disabled {
+  background: #b4beb6;
+  color: #202422;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.buttonLoading {
+  background: #b4beb6;
+  color: #202422;
+}
+
+/* Hover states */
+.button:hover:not(:disabled),
+.autofillInvoiceButton:hover:not(:disabled),
+.addItemBtn:hover:not(:disabled) {
+  background: #00a688;
+  color: white;
+}
+
+.removeBtn:hover:not(:disabled),
+.shippingButton:hover:not(:disabled) {
+  color: #00a688;
+}
+
+/* Select specific styles */
+.select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1em;
+  padding-right: 2.5rem;
 }
 
 .textarea {
@@ -101,105 +231,10 @@
   width: 100%;
 }
 
-.button {
-  background: #07ebc0;
-  color: #151716;
-  padding: 0.6rem 1.5rem;
-  border: none;
-  border-radius: 6px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  position: relative;
-  min-width: 160px; /* Ensure button doesn't change size when text changes */
-}
-
-button:focus {
-  border-color: #00a688;
-  box-shadow: 0 0 0 2px rgba(0, 166, 136, 0.2);
-}
-
-.autofillInvoiceButton {
-  max-width: auto;
-  margin-top: 1rem;
-}
-
 @media (min-width: 992px) {
   .autofillInvoiceButton {
     max-width: fit-content;
   }
-}
-
-.button:disabled {
-  background: #b4beb6;
-  color: #202422;
-  cursor: not-allowed;
-  opacity: 0.7;
-}
-
-.buttonLoading {
-  background: #b4beb6;
-  color: #202422;
-}
-
-/* Optional: Add a loading spinner */
-/* .buttonLoading::after {
-  content: '';
-  position: absolute;
-  width: 16px;
-  height: 16px;
-  top: 50%;
-  right: 1rem;
-  transform: translateY(-50%);
-  border: 2px solid #0369a1;
-  border-radius: 50%;
-  border-top-color: transparent;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: translateY(-50%) rotate(360deg);
-  }
-} */
-
-.addItemBtn {
-  background: #151716;
-  padding: 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  color: var(--Rho-Revised-Neutrals-Moon-100, #fff);
-  text-align: center;
-  font-family: "Basier Circle";
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: 16px;
-  width: fit-content;
-}
-/* add :before of a + icon */
-.addItemBtn:before {
-  content: "+";
-  margin-right: 8px;
-}
-/* .addItemBtn:hover {
-  background: #bae6fd;
-} */
-
-.removeBtn {
-  display: flex;
-  padding: 12px;
-  padding-block: 12px;
-  justify-content: center;
-  align-items: center;
-  width: fit-content;
-  background: transparent;
-  color: #151816;
-  font-size: 0.95rem;
-  cursor: pointer;
-  border: transparent;
 }
 
 .error {
@@ -270,29 +305,6 @@ button:focus {
   border-bottom: 1px solid #e5e7eb;
 }
 
-.select {
-  width: 100%;
-  font-size: 1rem;
-  background: #fff;
-  transition: border 0.2s;
-  color: #222;
-  padding: 14px 16px;
-  align-items: flex-start;
-  gap: 12px;
-  flex: 1 0 0;
-  align-self: stretch;
-  border-radius: 4px;
-  border: 1px solid var(--border-interactive-neutral-idle, rgba(0, 0, 0, 0.12));
-  background: var(--bg-interactive-neutral-idle, #fff);
-  cursor: pointer;
-}
-
-.select:focus {
-  border-color: #00a688;
-  box-shadow: 0 0 0 2px rgba(0, 166, 136, 0.2);
-  outline: none;
-}
-
 .termsLink {
   color: var(--fg-static-neutral-light, #6b6b6b);
   font-family: var(--font-Fixed-200, "Basier Circle");
@@ -300,10 +312,19 @@ button:focus {
   font-style: normal;
   font-weight: 400;
   line-height: 16px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-block;
 }
 
 .termsLink:hover {
-  text-decoration: underline;
+  color: #00a688;
+  text-decoration: none;
+}
+
+.termsLink:active {
+  color: #00a688;
+  background: rgba(0, 166, 136, 0.1);
 }
 
 .invoiceName {
@@ -393,20 +414,6 @@ button:focus {
 
 .taxRateLabel {
   margin-bottom: 0.5rem;
-}
-
-.shippingButton {
-  background: none;
-  border: none;
-  cursor: pointer;
-  width: fit-content;
-  margin-left: auto;
-  color: var(--Rho-Revised-Teals-Caribbean-400, #00a688);
-  font-family: "Basier Circle";
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: 16px;
 }
 
 .invoicePreview {
@@ -500,11 +507,16 @@ button:focus {
   width: 100%;
 
   & > * {
-    flex: 1; 
+    flex: 1;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
   }
 
   & > a {
     display: inline-flex;
+    text-decoration: none;
+    align-items: center;
+    justify-content: center;
   }
 }
 
@@ -512,4 +524,49 @@ button:focus {
   .actionButtons {
     width: fit-content;
   }
+}
+
+/* Add focus styles for anchor tags */
+.termsLink:focus {
+  outline: none;
+  border: 1px solid #00a688;
+  box-shadow: 0 0 0 2px rgba(0, 166, 136, 0.2);
+  border-radius: 4px;
+  /* padding: 2px 4px; */
+}
+
+/* Add focus styles for action buttons */
+.actionButtons > *:focus {
+  outline: none;
+  border-color: #00a688;
+  box-shadow: 0 0 0 2px rgba(0, 166, 136, 0.2);
+}
+
+/* Add active styles for action buttons */
+.actionButtons > *:active {
+  background: #00a688;
+  color: white;
+}
+
+/* Update terms link styles */
+.termsLink {
+  color: var(--fg-static-neutral-light, #6b6b6b);
+  font-family: var(--font-Fixed-200, "Basier Circle");
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 16px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.termsLink:hover {
+  color: #00a688;
+  text-decoration: none;
+}
+
+.termsLink:active {
+  color: #00a688;
+  background: rgba(0, 166, 136, 0.1);
 }
