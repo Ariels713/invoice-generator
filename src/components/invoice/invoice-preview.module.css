@@ -1,105 +1,235 @@
 .previewContainer {
-	background: #fff;
-	padding: 2rem;
-	border-radius: 12px;
-	box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-	max-width: 800px;
-	margin: 0 auto;
-	/* PDF-specific styles */
-	-webkit-print-color-adjust: exact !important;
-	print-color-adjust: exact !important;
-	color-adjust: exact !important;
+  background: #fff;
+  padding: 2rem;
+  padding-inline: 1rem; 
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  max-width: 800px;
+  margin: 0 auto;
+  /* PDF-specific styles */
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+  color-adjust: exact !important;
+  font-size: 10px;
+
+
+  /* test styles */
+  width: 5in;
+    position: absolute;
+    top: -100px;
+    left: -107px;
+    scale: 0.55;
+}
+
+@media (max-width: 992px) {
+	.previewWrapper {
+	  display: none !important;
+	}
+  }
+
+.previewCopy {
+  color: var(--Rho-Revised-Neutrals-Abyss-500, #151716);
+  font-family: Degular;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 110%;
+  margin-bottom: 1rem;
 }
 
 .header {
-	display: flex;
-	justify-content: space-between;
-	align-items: flex-start;
-	margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
 }
 
 .logo {
-	height: 64px;
-	width: auto;
-	max-width: 200px;
-	object-fit: contain;
-	margin-bottom: 1rem;
-	-webkit-print-color-adjust: exact !important;
-	print-color-adjust: exact !important;
-	color-adjust: exact !important;
+  height: 64px;
+  width: auto;
+  max-width: 200px;
+  object-fit: contain;
+  margin-bottom: 1rem;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+  color-adjust: exact !important;
 }
 
 .title {
-	font-size: 2rem;
-	font-weight: bold;
-	margin-bottom: 0.5rem;
+  color: var(--Rho-Revised-Neutrals-Abyss-500, #151716);
+  font-family: "Degular Display, sans-serif";
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 44px;
 }
 
 .companyInfo {
-	margin-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.tableContainer {
+  --user-theme-color: #05a588;
+  border-left: solid 4px var(--user-theme-color);
 }
 
 .table {
-	width: 100%;
-	border-collapse: collapse;
-	margin-bottom: 2rem;
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 2rem;
 }
 .table th,
 .table td {
-	padding: 0.75rem 0.5rem;
-	border-bottom: 1px solid #e5e7eb;
-	text-align: left;
-	-webkit-print-color-adjust: exact !important;
-	print-color-adjust: exact !important;
-	color-adjust: exact !important;
+  /* padding: 0.75rem 0.5rem; */
+  padding-inline-start: 0.5rem;
+  padding-block-end: 0.5rem;
+
+  text-align: left;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+  color-adjust: exact !important;
+  font-size: 8px;
 }
 .table th {
-	font-weight: 600;
-	background: #f4f8f6;
-	-webkit-print-color-adjust: exact !important;
-	print-color-adjust: exact !important;
-	color-adjust: exact !important;
+  font-weight: 600;;
+  color: var(--fg-static-neutral-light, #6b6b6b);
 }
 .table td {
-	font-size: 1rem;
+  font-size: 10px;
 }
 
 .totals {
-	display: flex;
-	flex-direction: column;
-	align-items: flex-end;
-	gap: 0.5rem;
-	margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  width: fit-content;
+  margin-inline-start: auto;
 }
 .totalRow {
-	display: flex;
-	justify-content: space-between;
-	width: 250px;
-	font-size: 1rem;
+  display: flex;
+  justify-content: space-between;
+  width: 250px;
+  font-size: 10px;
 }
 .totalRow.bold {
-	font-weight: bold;
+  font-weight: bold;
+}
+
+.totalDivider {
+  border-top: 1px solid #e5e7eb;
+  margin: 0.5rem 0;
+  width: 250px; /* Match the width of totalRow */
 }
 
 .notes {
-	margin-top: 2rem;
-	padding-top: 1.5rem;
-	border-top: 1px solid #e5e7eb;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  width: fit-content;
+  margin-left: auto;
+  max-width: 248px;
 }
 
 .downloadBtn {
-	background: #0ea5e9;
-	color: #fff;
-	padding: 0.6rem 1.5rem;
-	border: none;
-	border-radius: 6px;
-	font-size: 1rem;
-	font-weight: 600;
-	cursor: pointer;
-	transition: background 0.2s;
-	margin-bottom: 1rem;
-	float: right;
+  background: #0ea5e9;
+  color: #fff;
+  padding: 0.6rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-bottom: 1rem;
+  float: right;
 }
 .downloadBtn:hover {
-	background: #0369a1;
-} 
+  background: #0369a1;
+}
+
+.invoiceDetails {
+	display: flex;
+	flex-wrap: nowrap;
+	justify-content: space-between;
+  font-family: var(--font-Fixed-200, "Basier Circle");
+  color: var(--fg-static-neutral-light, #6b6b6b);
+}
+
+.invoiceDetailsHeader{
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  font-size: 12px;
+  font-family: var(--font-Fixed-200, "Basier Circle");
+}
+
+.invoiceDetailsSubHeader{
+  font-weight: 500;
+  font-size: 12px;
+  color: var(--fg-static-neutral-light, #6b6b6b);
+  font-family: var(--font-Fixed-200, "Basier Circle");
+}
+
+.previewContainer p {
+  font-size: 10px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.payable {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.invoiceNameContainer {
+  margin-block-end: 1rem;
+}
+.invoiceName {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.itemStack {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+/* Description field - gets more space */
+.itemStack .col:first-child {
+  flex-grow: 2;
+  flex-basis: 200px;
+}
+
+/* Date field */
+.itemStack .col:nth-child(2) {
+  flex-grow: 1;
+  flex-basis: 150px;
+}
+
+/* Quantity field */
+.itemStack .col:nth-child(3) {
+  flex-grow: 1;
+  flex-basis: 120px;
+}
+
+/* Rate field */
+.itemStack .col:nth-child(4) {
+  flex-grow: 1;
+  flex-basis: 150px;
+}
+
+/* Remove button */
+.itemStack .removeBtn {
+  flex-grow: 1;
+  flex-basis: 80px;
+  align-self: flex-end;
+  margin-top: 2rem;
+}
