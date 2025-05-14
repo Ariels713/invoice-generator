@@ -10,7 +10,7 @@ import { usStates } from "@/lib/states";
 import { parseInvoiceText } from "@/lib/ai-service";
 import styles from "./invoice-form.module.css";
 import { InvoicePreview } from "./InvoicePreview";
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { PDFDownloadButton } from './PDFDownloadButton'
 import { generateInvoiceName } from "@/lib/generate-invoice-name";
 import Image from 'next/image'
@@ -111,9 +111,10 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
 
   const formData = watch();
 
-  const getInvoicePreviewData = (): Invoice => {
+  // Only generate the invoice data when needed
+  const getInvoiceData = useCallback((): Invoice => {
     const items = (formData.items || []).map((item, idx) => {
-      const amount = Number(item.quantity) * Number(item.rate);
+      const amount = Number(item.quantity) * Number(item.rate)
       return {
         id: String(idx),
         description: item.description,
@@ -121,12 +122,13 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
         quantity: Number(item.quantity),
         rate: Number(item.rate),
         amount,
-      };
-    });
-    const subtotal = items.reduce((sum, item) => sum + item.amount, 0);
-    const taxAmount = (subtotal * (Number(formData.taxRate) || 0)) / 100;
-    const shipping = Number(formData.shipping) || 0;
-    const total = subtotal + taxAmount + shipping;
+      }
+    })
+    const subtotal = items.reduce((sum, item) => sum + item.amount, 0)
+    const taxAmount = (subtotal * (Number(formData.taxRate) || 0)) / 100
+    const shipping = Number(formData.shipping) || 0
+    const total = subtotal + taxAmount + shipping
+
     return {
       id: "preview",
       invoiceNumber: formData.invoiceNumber || "",
@@ -145,8 +147,11 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
       paymentInstructions: formData.paymentInstructions,
       logo: formData.logo,
       shipping,
-    };
-  };
+    }
+  }, [formData])
+
+  // Keep the preview data separate for the live preview
+  const previewData = useMemo(() => getInvoiceData(), [getInvoiceData])
 
   const handleAIParse = async () => {
     if (!aiInputText.trim()) return;
@@ -735,7 +740,7 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
       {/* Action Buttons */}
       <div className={styles.actionButtons}>
         <PDFDownloadButton 
-          invoice={getInvoicePreviewData()} 
+          invoice={getInvoiceData()}
           invoiceNumber={formData.invoiceNumber}
         />
         <button type="button" className={styles.button} style={{ flex: 1 }}>
@@ -759,7 +764,7 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
       {/* Styled Invoice Preview Section */}
       <div className={styles.invoicePreview}>
         <div className={styles.pdfPreviewMobileHidden}>
-          <InvoicePreview invoice={getInvoicePreviewData()} />
+          <InvoicePreview invoice={previewData} />
         </div>
       </div>
     </div>

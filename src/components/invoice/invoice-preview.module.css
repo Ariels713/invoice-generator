@@ -153,6 +153,10 @@
 	justify-content: space-between;
   font-family: var(--font-Fixed-200, "Basier Circle");
   color: var(--fg-static-neutral-light, #6b6b6b);
+
+  & > div {
+    flex: 1;
+  }
 }
 
 .invoiceDetailsHeader{

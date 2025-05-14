@@ -1,7 +1,7 @@
 'use client'
 
 import { PDFDownloadLink } from '@react-pdf/renderer'
-import { useEffect, useState } from 'react';
+import { useState } from 'react'
 import { Invoice } from '@/types/invoice'
 import { InvoicePDF } from './InvoicePDF'
 import styles from './invoice-form.module.css'
@@ -12,29 +12,40 @@ interface PDFDownloadButtonProps {
 }
 
 export function PDFDownloadButton({ invoice, invoiceNumber }: PDFDownloadButtonProps) {
-  const [isClient, setIsClient] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false)
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  const handleDownload = () => {
+    setIsGenerating(true)
+  }
 
-  if (!isClient) return null;
+  if (!isGenerating) {
+    return (
+      <button
+        type="button"
+        className={styles.button}
+        style={{ flex: 1 }}
+        onClick={handleDownload}
+      >
+        Download as PDF
+      </button>
+    )
+  }
 
   return (
     <PDFDownloadLink
       document={<InvoicePDF invoice={invoice} />}
       fileName={`invoice-${invoiceNumber || 'preview'}.pdf`}
     >
-      {({ loading }) => (
+      {({ loading, error }) => (
         <button
           type="button"
           className={styles.button}
           style={{ flex: 1 }}
           disabled={loading}
         >
-          {loading ? 'Generating PDF...' : 'Download as PDF'}
+          {loading ? 'Generating PDF...' : error ? 'Error generating PDF' : 'Download as PDF'}
         </button>
       )}
     </PDFDownloadLink>
-  );
+  )
 }
