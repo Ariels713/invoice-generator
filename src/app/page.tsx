@@ -5,7 +5,7 @@ import { InvoiceForm } from "@/components/invoice/InvoiceForm";
 import { Invoice, InvoiceFormData } from "@/types/invoice";
 
 export default function Home() {
-  // @ts-ignore
+  // @ts-expect-error - invoice state will be used in future implementation
   const [invoice, setInvoice] = useState<Invoice | null>(null);
 
   const handleFormSubmit = (data: InvoiceFormData) => {
