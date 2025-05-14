@@ -5,7 +5,7 @@ import { InvoiceForm } from "@/components/invoice/InvoiceForm";
 import { Invoice, InvoiceFormData } from "@/types/invoice";
 
 export default function Home() {
-  // @ts-expect-error - invoice state will be used in future implementation
+ // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [invoice, setInvoice] = useState<Invoice | null>(null);
 
   const handleFormSubmit = (data: InvoiceFormData) => {
