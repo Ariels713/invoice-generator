@@ -183,7 +183,7 @@ export function InvoicePDF({ invoice }: InvoicePDFProps) {
             <Text style={styles.text}>Tax ({invoice.taxRate}%):</Text>
             <Text style={styles.text}>{formatCurrency(invoice.taxAmount, invoice.currency)}</Text>
           </View>
-          {invoice.shipping > 0 && (
+          {invoice.shipping && invoice.shipping > 0 && (
             <View style={styles.totalRow}>
               <Text style={styles.text}>Shipping:</Text>
               <Text style={styles.text}>{formatCurrency(invoice.shipping, invoice.currency)}</Text>

@@ -1,6 +1,7 @@
 'use client'
 
 import { PDFDownloadLink } from '@react-pdf/renderer'
+import { useEffect, useState } from 'react';
 import { Invoice } from '@/types/invoice'
 import { InvoicePDF } from './InvoicePDF'
 import styles from './invoice-form.module.css'
@@ -11,6 +12,14 @@ interface PDFDownloadButtonProps {
 }
 
 export function PDFDownloadButton({ invoice, invoiceNumber }: PDFDownloadButtonProps) {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) return null;
+
   return (
     <PDFDownloadLink
       document={<InvoicePDF invoice={invoice} />}
@@ -27,5 +36,5 @@ export function PDFDownloadButton({ invoice, invoiceNumber }: PDFDownloadButtonP
         </button>
       )}
     </PDFDownloadLink>
-  )
-} 
+  );
+}
