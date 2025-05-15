@@ -73,6 +73,8 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
   const [aiInputText, setAiInputText] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [showShipping, setShowShipping] = useState(false);
+  const [isEmailSending, setIsEmailSending] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
 
   const {
     register,
@@ -220,6 +222,46 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
     (sum, item) => sum + Number(item.quantity) * Number(item.rate),
     0
   );
+
+  const handleEmailInvoice = async () => {
+    const invoice = getInvoiceData();
+    const recipientEmail = formData.sender.email;
+    
+    if (!recipientEmail || !invoice.invoiceNumber) {
+      console.error("Missing email or invoice number");
+      return;
+    }
+    
+    setIsEmailSending(true);
+    
+    try {
+      const response = await fetch('/api/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          invoice,
+          recipientEmail,
+        }),
+      });
+      
+      const responseData = await response.json();
+      
+      if (!response.ok) {
+        const errorMessage = responseData.error || 'Failed to send email';
+        console.error('Server error:', errorMessage);
+        throw new Error(errorMessage);
+      }
+      
+      setEmailSent(true);
+      setTimeout(() => setEmailSent(false), 3000);
+    } catch (error) {
+      console.error('Error sending email:', error);
+    } finally {
+      setIsEmailSending(false);
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -743,8 +785,14 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
           invoice={getInvoiceData()}
           invoiceNumber={formData.invoiceNumber}
         />
-        <button type="button" className={styles.button} style={{ flex: 1 }}>
-          Email invoice to me
+        <button 
+          type="button" 
+          className={styles.button} 
+          style={{ flex: 1 }}
+          onClick={handleEmailInvoice}
+          disabled={isEmailSending}
+        >
+          {isEmailSending ? 'Sending...' : emailSent ? 'Email Sent!' : 'Email invoice to me'}
         </button>
       </div>
 
