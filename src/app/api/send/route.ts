@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     
     // Send email with PDF attachment
     const { data, error } = await resend.emails.send({
-      from: `Invoice Generator <ariel.rodriguez@rho.co>`,
+      from: `Invoice Generator <onboarding@resend.dev>`,
       to: [recipientEmail],
       subject: `Invoice #${invoice.invoiceNumber} from ${invoice.sender.name}`,
       html: `
