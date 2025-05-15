@@ -1,14 +1,14 @@
 'use client'
 
-import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer'
+import { Document, Page, Text, View, StyleSheet, Image, Font } from '@react-pdf/renderer'
 import { Invoice } from '@/types/invoice'
 import { formatCurrency } from '@/lib/currencies'
 
-// Register fonts if needed
-// Font.register({
-//   family: 'Your Font',
-//   src: '/path/to/font.ttf'
-// })
+// Register font
+Font.register({
+  family: 'Oswald',
+  src: 'https://fonts.gstatic.com/s/oswald/v13/Y_TKV6o8WovbUd3m_X9aAA.ttf'
+})
 
 // Create styles
 const styles = StyleSheet.create({
@@ -33,40 +33,47 @@ const styles = StyleSheet.create({
     objectFit: 'contain',
   },
   invoiceDetails: {
+    display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 20,
   },
+  invoiceDetailsText: {
+    color: '#747C78',
+    fontSize: 10,
+    marginBottom: '2px'
+  },
   companyInfo: {
     marginBottom: 15,
-    width: '30%',
+    flex: 1,
   },
   label: {
-    fontSize: 12,
+    fontSize: 10,
     marginBottom: 5,
     color: '#666666',
   },
   tableContainer: {
     marginBottom: 20,
+    borderLeftWidth: 2,
+    borderLeftStyle: 'solid',
+    borderLeftColor: '#05a588',
+    paddingLeft: 20
   },
   tableHeader: {
     flexDirection: 'row',
-    backgroundColor: '#f4f8f6',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-    borderBottomStyle: 'solid',
     paddingVertical: 8,
   },
   tableRow: {
     flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-    borderBottomStyle: 'solid',
     paddingVertical: 8,
   },
   tableCell: {
     flex: 1,
-    paddingHorizontal: 5,
+  },
+  tableCellHeaders: {
+    fontSize: 10,
+    marginBottom: 5,
+    color: '#666666',
   },
   tableCellRight: {
     flex: 1,
@@ -92,11 +99,15 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#e5e7eb',
   },
+  notesWrapper: {
+    width: 300,
+    marginLeft: 'auto'
+  },
   notesContent: {
-    marginBottom: 10,
+    marginTop: 10,
   },
   text: {
-    fontSize: 12,
+    fontSize: 10,
     color: '#151716',
   },
   textBold: {
@@ -128,44 +139,57 @@ export function InvoicePDF({ invoice }: InvoicePDFProps) {
         {/* Invoice Details */}
         <View style={styles.invoiceDetails}>
           <View style={styles.companyInfo}>
-            <Text style={styles.label}>Invoice #{invoice.invoiceNumber}</Text>
-            <Text style={styles.text}>Date: {invoice.date}</Text>
-            <Text style={styles.text}>Due Date: {invoice.dueDate}</Text>
+            <Text style={[styles.label, styles.textBold]}>Total {formatCurrency(invoice.total, invoice.currency)}</Text>
+            <Text style={[styles.text, styles.invoiceDetailsText]}>Due Date: {invoice.dueDate}</Text>
+            <Text style={[styles.text, styles.invoiceDetailsText]}>Date: {invoice.date}</Text>
+            <Text style={[styles.text, styles.invoiceDetailsText]}>Ref: {invoice.invoiceNumber}</Text>
           </View>
           
           <View style={styles.companyInfo}>
-            <Text style={styles.label}>From:</Text>
-            <Text style={styles.text}>{invoice.sender.name}</Text>
-            <Text style={styles.text}>{invoice.sender.address}</Text>
-            <Text style={styles.text}>{invoice.sender.city}, {invoice.sender.state} {invoice.sender.postalCode}</Text>
-            <Text style={styles.text}>{invoice.sender.country}</Text>
-            <Text style={styles.text}>{invoice.sender.email}</Text>
-            <Text style={styles.text}>{invoice.sender.phone}</Text>
+            <Text style={[styles.label, styles.textBold]}>From:</Text>
+            <Text style={[styles.text, styles.invoiceDetailsText]}>{invoice.sender.name}</Text>
+            <Text style={[styles.text, styles.invoiceDetailsText]}>{invoice.sender.address}</Text>
+            {invoice.sender.address2 && (
+              <Text style={[styles.text, styles.invoiceDetailsText]}>{invoice.sender.address2}</Text>
+            )}
+            <Text style={[styles.text, styles.invoiceDetailsText]}>{invoice.sender.city}, {invoice.sender.state} {invoice.sender.postalCode}</Text>
+            <Text style={[styles.text, styles.invoiceDetailsText]}>{invoice.sender.country}</Text>
+            <Text style={[styles.text, styles.invoiceDetailsText]}>{invoice.sender.email}</Text>
+            <Text style={[styles.text, styles.invoiceDetailsText]}>{invoice.sender.phone}</Text>
           </View>
 
           <View style={styles.companyInfo}>
-            <Text style={styles.label}>To:</Text>
-            <Text style={styles.text}>{invoice.recipient.name}</Text>
-            <Text style={styles.text}>{invoice.recipient.address}</Text>
-            <Text style={styles.text}>{invoice.recipient.city}, {invoice.recipient.state} {invoice.recipient.postalCode}</Text>
-            <Text style={styles.text}>{invoice.recipient.country}</Text>
-            <Text style={styles.text}>{invoice.recipient.email}</Text>
-            <Text style={styles.text}>{invoice.recipient.phone}</Text>
+            <Text style={[styles.label, styles.textBold]}>To:</Text>
+            <Text style={[styles.text, styles.invoiceDetailsText]}>{invoice.recipient.name}</Text>
+            <Text style={[styles.text, styles.invoiceDetailsText]}>{invoice.recipient.address}</Text>
+            {invoice.recipient.address2 && (
+              <Text style={[styles.text, styles.invoiceDetailsText]}>{invoice.recipient.address2}</Text>
+            )}
+            <Text style={[styles.text, styles.invoiceDetailsText]}>{invoice.recipient.city}, {invoice.recipient.state} {invoice.recipient.postalCode}</Text>
+            <Text style={[styles.text, styles.invoiceDetailsText]}>{invoice.recipient.country}</Text>
+            <Text style={[styles.text, styles.invoiceDetailsText]}>{invoice.recipient.email}</Text>
+            <Text style={[styles.text, styles.invoiceDetailsText]}>{invoice.recipient.phone}</Text>
           </View>
         </View>
 
         {/* Items Table */}
         <View style={styles.tableContainer}>
+          <View style={styles.companyInfo}>
+            <Text style={[styles.label, styles.textBold]}>Invoice #{invoice.invoiceNumber}</Text>
+          </View>
+          
           <View style={styles.tableHeader}>
-            <Text style={[styles.tableCell, styles.textBold]}>Description</Text>
-            <Text style={[styles.tableCellRight, styles.textBold]}>Quantity</Text>
-            <Text style={[styles.tableCellRight, styles.textBold]}>Rate</Text>
-            <Text style={[styles.tableCellRight, styles.textBold]}>Amount</Text>
+            <Text style={[styles.tableCell, styles.tableCellHeaders]}>ITEM</Text>
+            <Text style={[styles.tableCellRight, styles.tableCellHeaders]}>PERIOD</Text>
+            <Text style={[styles.tableCellRight, styles.tableCellHeaders]}>QTY</Text>
+            <Text style={[styles.tableCellRight, styles.tableCellHeaders]}>RATE</Text>
+            <Text style={[styles.tableCellRight, styles.tableCellHeaders]}>AMOUNT</Text>
           </View>
           
           {invoice.items.map((item, index) => (
             <View key={index} style={styles.tableRow}>
-              <Text style={[styles.tableCell, styles.text]}>{item.description}</Text>
+              <Text style={[styles.tableCell, styles.text, styles.bold]}>{item.description}</Text>
+              <Text style={[styles.tableCellRight, styles.text]}>{item.issueDate}</Text>
               <Text style={[styles.tableCellRight, styles.text]}>{item.quantity}</Text>
               <Text style={[styles.tableCellRight, styles.text]}>{formatCurrency(item.rate, invoice.currency)}</Text>
               <Text style={[styles.tableCellRight, styles.text]}>{formatCurrency(item.amount, invoice.currency)}</Text>
@@ -198,18 +222,20 @@ export function InvoicePDF({ invoice }: InvoicePDFProps) {
         {/* Notes and Payment Instructions */}
         {(invoice.notes || invoice.paymentInstructions) && (
           <View style={styles.notes}>
-            {invoice.notes && (
-              <View style={styles.notesContent}>
-                <Text style={styles.label}>Notes:</Text>
-                <Text style={styles.text}>{invoice.notes}</Text>
-              </View>
-            )}
-            {invoice.paymentInstructions && (
-              <View>
-                <Text style={styles.label}>Payment Instructions:</Text>
-                <Text style={styles.text}>{invoice.paymentInstructions}</Text>
-              </View>
-            )}
+            <View style={styles.notesWrapper}>
+              {invoice.paymentInstructions && (
+                <View>
+                  <Text style={styles.label}>PAYMENT DETAILS</Text>
+                  <Text style={styles.text}>{invoice.paymentInstructions}</Text>
+                </View>
+              )}
+              {invoice.notes && (
+                <View style={styles.notesContent}>
+                  <Text style={styles.label}>NOTES:</Text>
+                  <Text style={styles.text}>{invoice.notes}</Text>
+                </View>
+              )}
+            </View>
           </View>
         )}
       </Page>
