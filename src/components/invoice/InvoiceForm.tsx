@@ -21,38 +21,59 @@ const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
 
 const companySchema = z.object({
-  name: z.string().min(1, "Company name is required"),
-  email: z.string().email("Invalid email address"),
-  address: z.string().min(1, "Address is required"),
-  address2: z.string().optional(),
-  city: z.string().min(1, "City is required"),
-  postalCode: z.string().min(1, "Postal code is required"),
-  country: z.string().min(1, "Country is required"),
-  state: z.string().min(1, "State is required"),
-  phone: z.string().min(1, "Phone number is required"),
+  name: z.string().min(1, "Company name is required").max(100, "Company name is too long"),
+  email: z.string()
+    .min(5, "Email is too short")
+    .max(100, "Email is too long")
+    .email("Invalid email address")
+    .refine(email => !email.includes('script'), {
+      message: "Email contains invalid characters"
+    }),
+  address: z.string().min(1, "Address is required").max(200, "Address is too long"),
+  address2: z.string().max(200, "Address is too long").optional(),
+  city: z.string().min(1, "City is required").max(100, "City is too long"),
+  postalCode: z.string().min(1, "Postal code is required").max(20, "Postal code is too long"),
+  country: z.string().min(1, "Country is required").max(100, "Country is too long"),
+  state: z.string().min(1, "State is required").max(100, "State is too long"),
+  phone: z.string()
+    .min(1, "Phone number is required")
+    .max(20, "Phone number is too long")
+    .refine(phone => /^[+\d\s()-]+$/.test(phone), {
+      message: "Phone number contains invalid characters"
+    }),
 });
 
 const invoiceItemSchema = z.object({
-  description: z.string().min(1, "Description is required"),
+  description: z.string().min(1, "Description is required").max(500, "Description is too long"),
   issueDate: z.string().min(1, "Issue date is required"),
-  quantity: z.number().min(0, "Quantity must be positive"),
-  rate: z.number().min(0, "Rate must be positive"),
+  quantity: z.number().min(0, "Quantity must be positive").max(1000000, "Quantity is too large"),
+  rate: z.number().min(0, "Rate must be positive").max(1000000000, "Rate is too large"),
 });
 
 const invoiceSchema = z.object({
-  invoiceNumber: z.string().min(1, "Invoice number is required"),
-  invoiceName: z.string().min(1, "Invoice name is required"),
+  invoiceNumber: z.string().max(50, "Invoice number is too long").optional(),
+  invoiceName: z.string().min(1, "Invoice name is required").max(100, "Invoice name is too long"),
   date: z.string().min(1, "Date is required"),
   dueDate: z.string().min(1, "Due date is required"),
   sender: companySchema,
   recipient: companySchema,
-  items: z.array(invoiceItemSchema).min(1, "At least one item is required"),
-  taxRate: z.number().min(0, "Tax rate must be positive"),
-  currency: z.string().min(1, "Currency is required"),
-  notes: z.string().optional(),
-  paymentInstructions: z.string().optional(),
-  logo: z.string().optional(),
-  shipping: z.number().min(0, "Shipping must be positive").optional(),
+  items: z.array(invoiceItemSchema).min(1, "At least one item is required").max(50, "Too many items"),
+  taxRate: z.number().min(0, "Tax rate must be positive").max(100, "Tax rate cannot exceed 100%"),
+  currency: z.string().min(1, "Currency is required").max(10, "Currency code is too long"),
+  notes: z.string().max(1000, "Notes are too long").optional(),
+  paymentInstructions: z.string().max(1000, "Payment instructions are too long").optional(),
+  logo: z.string()
+    .optional()
+    .refine(val => {
+      if (!val) return true; // Optional
+      return val.startsWith("data:image/");
+    }, "Invalid image format")
+    .refine(val => {
+      if (!val) return true; // Optional
+      // Check that the base64 string is not too large (roughly 5MB)
+      return val.length <= 7000000;
+    }, "Image size is too large"),
+  shipping: z.number().min(0, "Shipping must be positive").max(1000000, "Shipping cost is too large").optional(),
 });
 
 interface InvoiceFormProps {
@@ -85,6 +106,7 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
     setValue,
     watch,
     setError,
+    trigger,
     formState: { errors },
   } = useForm<InvoiceFormData>({
     resolver: zodResolver(invoiceSchema) as Resolver<InvoiceFormData>,
@@ -188,11 +210,11 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
     }
   };
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file size
+    // Client-side validation for quick feedback
     if (file.size > MAX_FILE_SIZE) {
       setValue("logo", "");
       setError("logo", {
@@ -202,7 +224,6 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
       return;
     }
 
-    // Validate file type
     if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
       setValue("logo", "");
       setError("logo", {
@@ -212,12 +233,49 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
       return;
     }
 
-    // Convert to base64
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setValue("logo", reader.result as string);
-    };
-    reader.readAsDataURL(file);
+    try {
+      // Create form data for server validation
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      // Send to server for validation
+      const response = await fetch('/api/validate-file', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      const result = await response.json();
+      
+      if (!response.ok || !result.valid) {
+        setValue("logo", "");
+        setError("logo", {
+          type: "manual",
+          message: result.error || "Invalid file. Please try another.",
+        });
+        return;
+      }
+      
+      // If validation passed, convert to base64
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setValue("logo", reader.result as string);
+      };
+      reader.onerror = () => {
+        setValue("logo", "");
+        setError("logo", {
+          type: "manual",
+          message: "Failed to process image. Please try another.",
+        });
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error("Error validating file:", error);
+      setValue("logo", "");
+      setError("logo", {
+        type: "manual",
+        message: "Failed to validate file. Please try again.",
+      });
+    }
   };
 
   const subtotal = (formData.items || []).reduce(
@@ -229,16 +287,54 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
     const invoice = getInvoiceData();
     const recipientEmail = formData.sender.email;
     
-    if (!recipientEmail || !invoice.invoiceNumber) {
-      console.error("Missing email or invoice number");
+    // Only validate email format
+    if (!recipientEmail) {
+      setError("sender.email", {
+        type: "manual",
+        message: "Email is required to send the invoice",
+      });
+      window.scrollTo({ top: 400, behavior: 'smooth' }); // Scroll to email field
+      return;
+    }
+    
+    // Email validation using regex
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(recipientEmail)) {
+      setError("sender.email", {
+        type: "manual",
+        message: "Please enter a valid email address",
+      });
+      window.scrollTo({ top: 400, behavior: 'smooth' }); // Scroll to email field
+      return;
+    }
+    
+    // Only trigger validation for the email field, other fields are not required
+    const emailValid = await trigger(["sender.email"]);
+    
+    if (!emailValid) {
+      // If email validation fails, scroll to the email field
+      window.scrollTo({ top: 400, behavior: 'smooth' });
       return;
     }
     
     setIsEmailSending(true);
     
     try {
-      // First generate the PDF blob using the same component used for download
-      const blob = await pdf(<InvoicePDF invoice={invoice} />).toBlob();
+      // Set maximum timeout for PDF generation (30 seconds)
+      const pdfPromise = Promise.race([
+        pdf(<InvoicePDF invoice={invoice} />).toBlob(),
+        new Promise<never>((_, reject) => 
+          setTimeout(() => reject(new Error("PDF generation timed out")), 30000)
+        )
+      ]);
+      
+      // Generate PDF
+      const blob = await pdfPromise as Blob;
+      
+      // Validate PDF size
+      if (blob.size > 10 * 1024 * 1024) { // 10MB limit
+        throw new Error("Generated PDF is too large. Please reduce the size of any images.");
+      }
       
       // Convert blob to base64
       const base64data = await new Promise<string>((resolve) => {
@@ -251,6 +347,10 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
       const base64pdf = base64data.split(',')[1];
       
       // Send to API with the PDF data
+      const controller = new AbortController();
+      // Set timeout for fetch request (15 seconds)
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+      
       const response = await fetch('/api/send', {
         method: 'POST',
         headers: {
@@ -261,7 +361,10 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
           recipientEmail,
           pdfBase64: base64pdf,
         }),
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
       
       const responseData = await response.json();
       
@@ -273,6 +376,30 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
       setTimeout(() => setEmailSent(false), 3000);
     } catch (error) {
       console.error('Error sending email:', error);
+      
+      // Show user-friendly error message
+      let errorMessage = 'Failed to send email. Please try again later.';
+      
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          errorMessage = 'Request timed out. Please check your connection and try again.';
+        } else if (error.message.includes('timed out')) {
+          errorMessage = 'PDF generation timed out. Your invoice may be too complex.';
+        } else if (error.message.includes('too large')) {
+          errorMessage = 'Your invoice file is too large. Please reduce the size of any images.';
+        } else if (error.message.includes('Invalid email')) {
+          errorMessage = 'Please provide a valid email address.';
+          setError("sender.email", {
+            type: "manual",
+            message: errorMessage,
+          });
+        } else if (error.message.includes('rate limit')) {
+          errorMessage = 'You have sent too many emails. Please try again later.';
+        }
+      }
+      
+      // Display error to user (you would need to add this component)
+      alert(errorMessage);
     } finally {
       setIsEmailSending(false);
     }
@@ -405,24 +532,45 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
             className={styles.input}
             placeholder="Company Name"
           />
+          {errors.sender?.name && (
+            <p className={styles.error}>{errors.sender.name.message}</p>
+          )}
           <input
             type="email"
             {...register("sender.email")}
             className={styles.input}
             placeholder="Email Address"
+            onChange={(e) => {
+              const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+              if (e.target.value && !emailRegex.test(e.target.value)) {
+                setError("sender.email", {
+                  type: "manual",
+                  message: "Please enter a valid email address",
+                });
+              }
+            }}
           />
+          {errors.sender?.email && (
+            <p className={styles.error}>{errors.sender.email.message}</p>
+          )}
           <input
             type="text"
             {...register("sender.address")}
             className={styles.input}
             placeholder="Address Line 1"
           />
+          {errors.sender?.address && (
+            <p className={styles.error}>{errors.sender.address.message}</p>
+          )}
           <input
             type="text"
             {...register("sender.address2")}
             className={styles.input}
             placeholder="Address Line 2 (Optional)"
           />
+          {errors.sender?.address2 && (
+            <p className={styles.error}>{errors.sender.address2.message}</p>
+          )}
           <div className={styles.addressRow}>
             <input
               type="text"
@@ -437,6 +585,12 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
               placeholder="Zip Code"
             />
           </div>
+          {errors.sender?.city && (
+            <p className={styles.error}>{errors.sender.city.message}</p>
+          )}
+          {errors.sender?.postalCode && (
+            <p className={styles.error}>{errors.sender.postalCode.message}</p>
+          )}
           <div className={styles.addressRow}>
             <select
               {...register("sender.state")}
@@ -453,12 +607,18 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
               ))}
             </select>
           </div>
+          {errors.sender?.state && (
+            <p className={styles.error}>{errors.sender.state.message}</p>
+          )}
           <input
             type="tel"
             {...register("sender.phone")}
             className={styles.input}
             placeholder="Phone Number"
           />
+          {errors.sender?.phone && (
+            <p className={styles.error}>{errors.sender.phone.message}</p>
+          )}
         </div>
 
         <div className={styles.companyInfoCol}>
@@ -469,24 +629,45 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
             className={styles.input}
             placeholder="Company Name"
           />
+          {errors.recipient?.name && (
+            <p className={styles.error}>{errors.recipient.name.message}</p>
+          )}
           <input
             type="email"
             {...register("recipient.email")}
             className={styles.input}
             placeholder="Email Address"
+            onChange={(e) => {
+              const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+              if (e.target.value && !emailRegex.test(e.target.value)) {
+                setError("recipient.email", {
+                  type: "manual",
+                  message: "Please enter a valid email address",
+                });
+              }
+            }}
           />
+          {errors.recipient?.email && (
+            <p className={styles.error}>{errors.recipient.email.message}</p>
+          )}
           <input
             type="text"
             {...register("recipient.address")}
             className={styles.input}
             placeholder="Address Line 1"
           />
+          {errors.recipient?.address && (
+            <p className={styles.error}>{errors.recipient.address.message}</p>
+          )}
           <input
             type="text"
             {...register("recipient.address2")}
             className={styles.input}
             placeholder="Address Line 2 (Optional)"
           />
+          {errors.recipient?.address2 && (
+            <p className={styles.error}>{errors.recipient.address2.message}</p>
+          )}
           <div className={styles.addressRow}>
             <input
               type="text"
@@ -501,6 +682,12 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
               placeholder="Zip Code"
             />
           </div>
+          {errors.recipient?.city && (
+            <p className={styles.error}>{errors.recipient.city.message}</p>
+          )}
+          {errors.recipient?.postalCode && (
+            <p className={styles.error}>{errors.recipient.postalCode.message}</p>
+          )}
           <div className={styles.addressRow}>
             <select
               {...register("recipient.state")}
@@ -517,12 +704,18 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
               ))}
             </select>
           </div>
+          {errors.recipient?.state && (
+            <p className={styles.error}>{errors.recipient.state.message}</p>
+          )}
           <input
             type="tel"
             {...register("recipient.phone")}
             className={styles.input}
             placeholder="Phone Number"
           />
+          {errors.recipient?.phone && (
+            <p className={styles.error}>{errors.recipient.phone.message}</p>
+          )}
         </div>
       </div>
 
@@ -586,6 +779,9 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
                 placeholder="Description"
                 className={styles.input}
               />
+              {errors.items?.[index]?.description && (
+                <p className={styles.error}>{errors.items[index]?.description?.message}</p>
+              )}
             </div>
             <div className={styles.col}>
               <label className={styles.label}>Issue Date</label>
@@ -594,6 +790,9 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
                 {...register(`items.${index}.issueDate`)}
                 className={styles.input}
               />
+              {errors.items?.[index]?.issueDate && (
+                <p className={styles.error}>{errors.items[index]?.issueDate?.message}</p>
+              )}
             </div>
             <div className={styles.col}>
               <label className={styles.label}>Quantity</label>
@@ -604,6 +803,9 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
                 })}
                 className={styles.input}
               />
+              {errors.items?.[index]?.quantity && (
+                <p className={styles.error}>{errors.items[index]?.quantity?.message}</p>
+              )}
             </div>
             <div className={styles.col} style={{ position: "relative" }}>
               <label className={styles.label}>Rate</label>
@@ -618,6 +820,9 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
                 className={styles.input}
                 style={{ paddingLeft: "2rem", paddingRight: "4.5rem" }}
               />
+              {errors.items?.[index]?.rate && (
+                <p className={styles.error}>{errors.items[index]?.rate?.message}</p>
+              )}
               <span className={styles.currencyAdornment}>
                 {currencies.find((c) => c.code === formData.currency)?.flag}{" "}
                 {formData.currency}
@@ -679,6 +884,9 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
               className={styles.input}
               placeholder="Add any additional notes here..."
             />
+            {errors.notes && (
+              <p className={styles.error}>{errors.notes.message}</p>
+            )}
           </div>
           <div className={styles.col}>
             <label className={styles.label}>Payment Instructions</label>
@@ -688,6 +896,9 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
               style={{ minHeight: "100px" }}
               placeholder="Add payment instructions here..."
             />
+            {errors.paymentInstructions && (
+              <p className={styles.error}>{errors.paymentInstructions.message}</p>
+            )}
           </div>
         </div>
       </div>
@@ -717,6 +928,9 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
               placeholder="%"
               style={{ paddingRight: "2.5rem" }}
             />
+            {errors.taxRate && (
+              <p className={styles.error}>{errors.taxRate.message}</p>
+            )}
             <span
               style={{
                 position: "absolute",
@@ -744,6 +958,9 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
                 placeholder="Shipping amount"
                 min={0}
               />
+              {errors.shipping && (
+                <p className={styles.error}>{errors.shipping.message}</p>
+              )}
               <span
                 style={{
                   position: "absolute",
