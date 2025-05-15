@@ -142,7 +142,9 @@ export function InvoicePDF({ invoice }: InvoicePDFProps) {
             <Text style={[styles.label, styles.textBold]}>Total {formatCurrency(invoice.total, invoice.currency)}</Text>
             <Text style={[styles.text, styles.invoiceDetailsText]}>Due Date: {invoice.dueDate}</Text>
             <Text style={[styles.text, styles.invoiceDetailsText]}>Date: {invoice.date}</Text>
-            <Text style={[styles.text, styles.invoiceDetailsText]}>Ref: {invoice.invoiceNumber}</Text>
+            {invoice.invoiceNumber && (
+              <Text style={[styles.text, styles.invoiceDetailsText]}>Ref: {invoice.invoiceNumber}</Text>
+            )}
           </View>
           
           <View style={styles.companyInfo}>
@@ -175,7 +177,9 @@ export function InvoicePDF({ invoice }: InvoicePDFProps) {
         {/* Items Table */}
         <View style={styles.tableContainer}>
           <View style={styles.companyInfo}>
-            <Text style={[styles.label, styles.textBold]}>Invoice #{invoice.invoiceNumber}</Text>
+            {invoice.invoiceNumber && (
+              <Text style={[styles.label, styles.textBold]}>Invoice #{invoice.invoiceNumber}</Text>
+            )}
           </View>
           
           <View style={styles.tableHeader}>
