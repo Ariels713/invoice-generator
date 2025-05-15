@@ -14,6 +14,8 @@ import { useState, useCallback, useMemo } from "react";
 import { PDFDownloadButton } from './PDFDownloadButton'
 import { generateInvoiceName } from "@/lib/generate-invoice-name";
 import Image from 'next/image'
+import { pdf } from '@react-pdf/renderer';
+import { InvoicePDF } from './InvoicePDF';
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
@@ -235,6 +237,20 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
     setIsEmailSending(true);
     
     try {
+      // First generate the PDF blob using the same component used for download
+      const blob = await pdf(<InvoicePDF invoice={invoice} />).toBlob();
+      
+      // Convert blob to base64
+      const base64data = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(blob);
+      });
+      
+      // Extract the base64 part after the data URL prefix
+      const base64pdf = base64data.split(',')[1];
+      
+      // Send to API with the PDF data
       const response = await fetch('/api/send', {
         method: 'POST',
         headers: {
@@ -243,15 +259,14 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
         body: JSON.stringify({
           invoice,
           recipientEmail,
+          pdfBase64: base64pdf,
         }),
       });
       
       const responseData = await response.json();
       
       if (!response.ok) {
-        const errorMessage = responseData.error || 'Failed to send email';
-        console.error('Server error:', errorMessage);
-        throw new Error(errorMessage);
+        throw new Error(responseData.error || 'Failed to send email');
       }
       
       setEmailSent(true);

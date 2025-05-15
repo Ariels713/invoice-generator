@@ -5,10 +5,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('Received email request');
-    console.log('API Key exists:', !!process.env.RESEND_API_KEY);
-    
-    const { invoice, recipientEmail } = await request.json();
+    const { invoice, recipientEmail, pdfBase64 } = await request.json();
     
     if (!invoice || !recipientEmail) {
       return NextResponse.json(
@@ -17,16 +14,26 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Just send a simple email without PDF for now
+    // Convert base64 back to buffer for the attachment
+    const pdfBuffer = pdfBase64 ? Buffer.from(pdfBase64, 'base64') : null;
+    
+    if (!pdfBuffer) {
+      return NextResponse.json(
+        { error: 'PDF data is required' },
+        { status: 400 }
+      );
+    }
+    
+    // Send email with PDF attachment
     const { data, error } = await resend.emails.send({
-      from: 'Invoice Generator <ariel.rodriguez@rho.co>',
+      from: `Invoice Generator <ariel.rodriguez@rho.co>`,
       to: [recipientEmail],
       subject: `Invoice #${invoice.invoiceNumber} from ${invoice.sender.name}`,
       html: `
         <div style="font-family: Arial, sans-serif; padding: 20px;">
           <h1 style="color: #05a588;">Your Invoice #${invoice.invoiceNumber}</h1>
           <p>Hello from ${invoice.sender.name},</p>
-          <p>Your invoice has been generated successfully.</p>
+          <p>Your invoice has been generated and is attached to this email.</p>
           <div style="margin: 20px 0; padding: 20px; border: 1px solid #e5e7eb; border-radius: 5px;">
             <h2>Invoice Summary</h2>
             <p><strong>Invoice Number:</strong> ${invoice.invoiceNumber}</p>
@@ -37,6 +44,12 @@ export async function POST(request: NextRequest) {
           <p>Thank you for your business!</p>
         </div>
       `,
+      attachments: [
+        {
+          filename: `invoice-${invoice.invoiceNumber || 'preview'}.pdf`,
+          content: pdfBuffer,
+        },
+      ],
     });
 
     if (error) {
