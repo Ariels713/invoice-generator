@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
       emailSchema.parse(recipientEmail);
     } catch (validationError) {
       return NextResponse.json(
-        { error: 'Invalid email format' },
+        { error: `Invalid email format: ${validationError}` },
         { status: 400 }
       );
     }

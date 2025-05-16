@@ -87,12 +87,24 @@ export const uploadFile = async (
   }
 };
 
+interface HubSpotEmailResponse {
+  id: string;
+  status: string;
+  created: string;
+  updated: string;
+  scheduledAt?: string;
+  sendResult?: {
+    success: boolean;
+    message?: string;
+  };
+}
+
 export const sendEmail = async (
   contactId: string,
   fileId: string,
   subject: string,
   htmlContent: string
-): Promise<any> => {
+): Promise<HubSpotEmailResponse> => {
   try {
     // Create email
     const emailResponse = await hubspotClient.post(
