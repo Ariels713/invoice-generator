@@ -12,10 +12,10 @@ interface InvoicePreviewProps {
 }
 
 function formatPeriodDate(dateString: string): string {
-  if (!dateString) return ''; // Return empty string if no date is provided
+  if (!dateString) return '';
   
   const date = new Date(dateString);
-  if (isNaN(date.getTime())) return ''; // Return empty string if date is invalid
+  if (isNaN(date.getTime())) return '';
   
   const month = date.toLocaleString('default', { month: 'long' });
   const year = date.getFullYear().toString().slice(-2);
@@ -63,18 +63,18 @@ export function InvoicePreview({ invoice }: InvoicePreviewProps) {
           <p>Ref: {invoice.invoiceNumber}</p>
         </div>
         <div className={styles.companyInfo}>
-          <h2 className={styles.invoiceDetailsHeader}>From:</h2>
+          <p className={styles.invoiceDetailsHeader}>From:</p>
           <p>{invoice.sender.name}</p>
           <p>{invoice.sender.address}</p>
           <p>
-            {invoice.sender.city}, {invoice.sender.state} {invoice.sender.postalCode}
+            {`${invoice.sender.city},`} {invoice.sender.state} {invoice.sender.postalCode}
           </p>
           <p>{invoice.sender.country}</p>
           <p>{invoice.sender.email}</p>
           <p>{invoice.sender.phone}</p>
         </div>
         <div className={styles.companyInfo}>
-          <h2 className={styles.invoiceDetailsHeader}>To:</h2>
+          <p className={styles.invoiceDetailsHeader}>To:</p>
           <p>{invoice.recipient.name}</p>
           <p>{invoice.recipient.address}</p>
           <p>
@@ -175,7 +175,8 @@ export function InvoicePreview({ invoice }: InvoicePreviewProps) {
             transition={smoothTransition}
             style={{ 
               transformOrigin: "top left",
-            
+              aspectRatio: "9/11"
+              // scale: 0.55
             }}
           >
             <InvoiceContent />
@@ -200,7 +201,10 @@ export function InvoicePreview({ invoice }: InvoicePreviewProps) {
                   layoutId="invoice-preview-container"
                   transition={smoothTransition}
                   style={{ 
-                    transformOrigin: "0% 0%"
+                    transformOrigin: "top left",
+                    width: "8.5in", // Standard letter width
+                    maxWidth: "90vw", // Responsive constraint
+                    aspectRatio: "9/11"
                   }}
                 >
                   <button 
