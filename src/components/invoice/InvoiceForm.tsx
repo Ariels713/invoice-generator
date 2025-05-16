@@ -415,12 +415,12 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
       // Extract the base64 part after the data URL prefix
       const base64pdf = base64data.split(",")[1];
 
-      // Send to API with the PDF data
+      // Send to HubSpot API with the PDF data
       const controller = new AbortController();
       // Set timeout for fetch request (15 seconds)
       const timeoutId = setTimeout(() => controller.abort(), 15000);
 
-      const response = await fetch("/api/send", {
+      const response = await fetch("/api/send-hubspot", { // Updated endpoint
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -471,7 +471,7 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
         }
       }
 
-      // Display error to user (you would need to add this component)
+      // Display error to user
       alert(errorMessage);
     } finally {
       setIsEmailSending(false);
