@@ -1030,7 +1030,7 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
 
       {/* add disclaimer section */}
       <div>
-        <p className={styles.termsLink}>
+        <p className={styles.disclaimer}>
           By using the &ldquo;Invoice Generator&rdquo;, you acknowledge that you have read,
           understood, and agree to be bound by Rho&apos;s Terms of Service and
           Privacy Policy, as may be updated from time to time. You hereby grant

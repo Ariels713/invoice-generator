@@ -10,14 +10,19 @@
   print-color-adjust: exact !important;
   color-adjust: exact !important;
   font-size: 10px;
-
-
-  /* test styles */
   width: 5in;
-    position: absolute;
-    top: -100px;
-    left: -107px;
-    scale: 0.55;
+  /* position: absolute;
+  top: -100px;
+  left: -107px; */
+  scale: 0.55;
+  transform-origin: 0% 0% !important;
+  /* New hover styles */
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.previewContainer:hover {
+  transform: scale(1.01);
 }
 
 @media (max-width: 992px) {
@@ -25,6 +30,36 @@
 	  display: none !important;
 	}
   }
+
+.previewHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.previewButton {
+  padding: 8px 16px;
+  background-color: #07ebc0;
+  color: #151716;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.previewButton:focus {
+  border-color: #00a688;
+  box-shadow: 0 0 0 2px rgba(0, 166, 136, 0.2);
+  outline: none;
+}
+
+.previewButton:active {
+  background: #00a688;
+  color: white;
+}
 
 .previewCopy {
   color: var(--Rho-Revised-Neutrals-Abyss-500, #151716);
@@ -34,6 +69,56 @@
   font-weight: 400;
   line-height: 110%;
   margin-bottom: 1rem;
+}
+
+/* Modal overlay */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  will-change: opacity;
+}
+
+.expandedPreviewWrapper {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+  padding: 40px;
+  pointer-events: none;
+}
+
+.expandedPreview {
+  background: white;
+  border-radius: 8px;
+  overflow: auto;
+  max-width: 800px;
+  max-height: 90vh;
+  width: 90vw;
+  padding: 30px;
+  position: relative;
+  pointer-events: auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.closeButton {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #f0f0f0;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
 }
 
 .header {

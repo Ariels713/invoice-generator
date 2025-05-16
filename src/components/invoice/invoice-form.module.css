@@ -100,6 +100,7 @@
   border-radius: 4px;
   border: 1px solid var(--border-interactive-neutral-idle, rgba(0, 0, 0, 0.12));
   background: var(--bg-interactive-neutral-idle, #fff);
+  max-height: 48px;
 }
 
 /* Base button styles */
@@ -211,10 +212,11 @@
   background-repeat: no-repeat;
   background-position: right 1rem center;
   background-size: 1em;
-  padding-right: 2.5rem;
+  /* padding-right: 2.5rem; */
 }
 
 .textarea {
+  max-height: unset;
   min-height: 200px;
 }
 
@@ -325,6 +327,18 @@
 .termsLink:active {
   color: #00a688;
   background: rgba(0, 166, 136, 0.1);
+}
+
+.disclaimer {
+  color: var(--fg-static-neutral-light, #6b6b6b);
+  font-family: var(--font-Fixed-200, "Basier Circle");
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 16px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-block;
 }
 
 .invoiceName {
@@ -569,4 +583,11 @@
 .termsLink:active {
   color: #00a688;
   background: rgba(0, 166, 136, 0.1);
+}
+
+/* Style date input calendar icon */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.8); /* This makes the white icon dark */
+  opacity: 0.8;
+  cursor: pointer;
 }
