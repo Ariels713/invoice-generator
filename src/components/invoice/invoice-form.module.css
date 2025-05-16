@@ -128,7 +128,7 @@
 
 .autofillInvoiceButton {
   max-width: auto;
-  margin-top: 1rem;
+  /* margin-top: 1rem; */
 }
 
 .addItemBtn {
@@ -586,7 +586,7 @@
 }
 
 /* Style date input calendar icon */
-input[type="date"]::-webkit-calendar-picker-indicator {
+.dateInput[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(0.8); /* This makes the white icon dark */
   opacity: 0.8;
   cursor: pointer;
