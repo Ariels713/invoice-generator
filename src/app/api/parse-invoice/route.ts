@@ -1,6 +1,40 @@
 import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
 
+// Add these interfaces based on the prompt structure
+interface InvoiceItem {
+	description: string | null
+	quantity: number | null
+	rate: number | null
+}
+
+interface InvoiceParty {
+	name: string | null
+	address: string | null
+	city: string | null
+	state: string | null
+	zipCode: string | null
+	country: string | null
+	email: string | null
+	phone: string | null
+}
+
+interface ParsedInvoice {
+	invoiceNumber: string | null
+	invoiceName: string | null
+	date: string | null
+	dueDate: string | null
+	sender: InvoiceParty | null
+	recipient: InvoiceParty | null
+	items: InvoiceItem[] | null
+	taxRate: number | null
+	currency: string | null
+	notes?: string | null
+	paymentInstructions?: string | null
+	shipping?: number | null
+	warning?: string
+}
+
 const openai = new OpenAI({ 
 	apiKey: process.env.OPENAI_API_KEY!,
 	defaultHeaders: {
@@ -33,7 +67,7 @@ type RateLimitEntry = {
 
 const AI_LIMITS = new Map<string, RateLimitEntry>()
 const RATE_LIMIT_WINDOW = 3600 * 1000 // 1 hour in ms
-const MAX_AI_REQUESTS_PER_WINDOW = 10 // 10 requests per hour
+const MAX_AI_REQUESTS_PER_WINDOW = 1000 // 10 requests per hour
 
 function getRateLimitKey(request: NextRequest): string {
 	// In production, use a more robust way to identify users
@@ -131,39 +165,57 @@ export async function POST(req: NextRequest) {
 		])
 		
 		const completion = await openAIWithTimeout as OpenAI.Chat.Completions.ChatCompletion
+		
 		const response = completion.choices[0]?.message?.content
 		
 		if (!response) {
 			return NextResponse.json(
-				{ error: 'No response from AI' },
-				{ status: 500 }
+				{ error: 'Unable to generate content. Please try again.' },
+				{ status: 400 }
 			)
 		}
 		
 		try {
 			// Validate the JSON structure before returning
-			const parsedResponse = JSON.parse(response)
+			const parsedResponse = JSON.parse(response) as ParsedInvoice
+			
+			// Check if the parsed response has any non-null values
+			const hasValidData = !!(
+				parsedResponse.invoiceNumber || 
+				parsedResponse.date || 
+				parsedResponse.dueDate ||
+				(parsedResponse.sender && Object.values(parsedResponse.sender).some(val => val)) ||
+				(parsedResponse.recipient && Object.values(parsedResponse.recipient).some(val => val)) ||
+				(parsedResponse.items && parsedResponse.items.length > 0 && parsedResponse.items.some((item: InvoiceItem) => item.description))
+			);
+			
+			if (!hasValidData) {
+				// Return the empty data with a status 200 but include a message
+				return NextResponse.json({
+					...parsedResponse,
+					warning: 'The content provided does not appear to contain invoice information. Please provide specific invoice details.'
+				})
+			}
+			
 			return NextResponse.json(parsedResponse)
 		} catch (parseError) {
 			console.error('Error parsing AI response:', parseError)
 			return NextResponse.json(
-				{ error: 'Failed to parse AI response' },
-				{ status: 500 }
+				{ error: 'Unable to process the response. Please try again with different text.' },
+				{ status: 400 }
 			)
 		}
 	} catch (error) {
 		console.error('Error parsing invoice text:', error)
 		
-		let status = 500
-		let message = 'Failed to parse invoice text'
+		const status = 400
+		let message = 'Failed to process your request. Please try again.'
 		
 		if (error instanceof Error) {
 			if (error.message === 'Request timed out') {
-				status = 408
-				message = 'Request timed out'
+				message = 'Request timed out. Please try again.'
 			} else if (error.message.includes('429')) {
-				status = 429
-				message = 'Too many requests to AI service'
+				message = 'Too many requests. Please try again later.'
 			}
 		}
 		
