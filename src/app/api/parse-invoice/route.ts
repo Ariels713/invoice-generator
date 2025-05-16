@@ -166,13 +166,7 @@ export async function POST(req: NextRequest) {
 		
 		const completion = await openAIWithTimeout as OpenAI.Chat.Completions.ChatCompletion
 		
-		// Log the full completion for debugging
-		console.log('Full OpenAI response:', JSON.stringify(completion, null, 2))
-		
 		const response = completion.choices[0]?.message?.content
-		
-		// Log just the content part
-		console.log('OpenAI response content:', response)
 		
 		if (!response) {
 			return NextResponse.json(
