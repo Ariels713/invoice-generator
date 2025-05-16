@@ -11,18 +11,11 @@
   color-adjust: exact !important;
   font-size: 10px;
   width: 5in;
-  /* position: absolute;
-  top: -100px;
-  left: -107px; */
-  scale: 0.55;
-  transform-origin: 0% 0% !important;
-  /* New hover styles */
   cursor: pointer;
-  transition: transform 0.2s ease;
 }
 
 .previewContainer:hover {
-  transform: scale(1.01);
+  /* transform: scale(1.01); */
 }
 
 @media (max-width: 992px) {

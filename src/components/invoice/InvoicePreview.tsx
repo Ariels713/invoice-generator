@@ -26,11 +26,11 @@ export function InvoicePreview({ invoice }: InvoicePreviewProps) {
   const previewRef = useRef<HTMLDivElement>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   
-  // Define a consistent transition for both directions
+  // Define a consistent transition for both directions - less bouncy
   const smoothTransition = { 
     type: "spring", 
-    stiffness: 280, 
-    damping: 28,
+    stiffness: 250, 
+    damping: 30,
     mass: 1
   };
 
@@ -173,6 +173,10 @@ export function InvoicePreview({ invoice }: InvoicePreviewProps) {
             layoutId="invoice-preview-container"
             onClick={() => setIsExpanded(true)}
             transition={smoothTransition}
+            style={{ 
+              transformOrigin: "top left",
+            
+            }}
           >
             <InvoiceContent />
           </motion.div>
@@ -195,6 +199,9 @@ export function InvoicePreview({ invoice }: InvoicePreviewProps) {
                   className={styles.expandedPreview}
                   layoutId="invoice-preview-container"
                   transition={smoothTransition}
+                  style={{ 
+                    transformOrigin: "0% 0%"
+                  }}
                 >
                   <button 
                     className={styles.closeButton}
