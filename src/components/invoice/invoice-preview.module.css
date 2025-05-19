@@ -226,6 +226,7 @@
 
 .invoiceDetails {
 	display: flex;
+  gap: .5rem;
 	flex-wrap: nowrap;
 	justify-content: space-between;
   font-family: var(--font-Fixed-200, "Basier Circle");

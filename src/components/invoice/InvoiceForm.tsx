@@ -253,7 +253,22 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
       // Set all parsed values into the form except invoiceName
       Object.entries(parsedData).forEach(([key, value]) => {
         if (key !== "invoiceName") {
-          setValue(key as keyof InvoiceFormData, value);
+          if (key === "sender" || key === "recipient") {
+            // Handle company objects
+            const company = value as Company & { zipCode?: string };
+            if (company.zipCode) {
+              // Map zipCode to postalCode
+              setValue(`${key}.postalCode` as keyof InvoiceFormData, company.zipCode);
+            }
+            // Set other company fields
+            Object.entries(company).forEach(([field, fieldValue]) => {
+              if (field !== "zipCode") { // Skip zipCode as we've already handled it
+                setValue(`${key}.${field}` as keyof InvoiceFormData, fieldValue);
+              }
+            });
+          } else {
+            setValue(key as keyof InvoiceFormData, value);
+          }
         }
         if (key === "shipping" && value) {
           setShowShipping(true);

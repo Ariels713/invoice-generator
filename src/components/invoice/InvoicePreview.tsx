@@ -64,24 +64,20 @@ export function InvoicePreview({ invoice }: InvoicePreviewProps) {
         </div>
         <div className={styles.companyInfo}>
           <p className={styles.invoiceDetailsHeader}>From:</p>
-          <p>{invoice.sender.name}</p>
+          <p className={styles.invoiceDetailsSubHeader}>{invoice.sender.name}</p>
           <p>{invoice.sender.address}</p>
           <p>
-            {`${invoice.sender.city},`} {invoice.sender.state} {invoice.sender.postalCode}
+            {invoice.sender.city ? `${invoice.sender.city},` : ''} {invoice.sender.state} {invoice.sender.postalCode}
           </p>
-          <p>{invoice.sender.country}</p>
-          <p>{invoice.sender.email}</p>
           <p>{invoice.sender.phone}</p>
         </div>
         <div className={styles.companyInfo}>
           <p className={styles.invoiceDetailsHeader}>To:</p>
-          <p>{invoice.recipient.name}</p>
+          <p className={styles.invoiceDetailsSubHeader}>{invoice.recipient.name}</p>
           <p>{invoice.recipient.address}</p>
           <p>
-            {invoice.recipient.city}, {invoice.recipient.state} {invoice.recipient.postalCode}
+            {invoice.recipient.city ? `${invoice.recipient.city},` : ''} {invoice.recipient.state} {invoice.recipient.postalCode}
           </p>
-          <p>{invoice.recipient.country}</p>
-          <p>{invoice.recipient.email}</p>
           <p>{invoice.recipient.phone}</p>
         </div>
       </div>
