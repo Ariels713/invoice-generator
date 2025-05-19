@@ -25,6 +25,7 @@ function formatPeriodDate(dateString: string): string {
 export function InvoicePreview({ invoice }: InvoicePreviewProps) {
   const previewRef = useRef<HTMLDivElement>(null);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [themeColor, setThemeColor] = useState('#05a588'); // Default theme color
   
   // Define a consistent transition for both directions - less bouncy
   const smoothTransition = { 
@@ -32,6 +33,10 @@ export function InvoicePreview({ invoice }: InvoicePreviewProps) {
     stiffness: 250, 
     damping: 30,
     mass: 1
+  };
+
+  const handleThemeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setThemeColor(e.target.value);
   };
 
   // Invoice content component - reused in both preview and expanded view
@@ -88,8 +93,8 @@ export function InvoicePreview({ invoice }: InvoicePreviewProps) {
         )}
       </div>
 
-      <div className={styles.tableContainer}>
-        <table className={styles.table}>
+      <div className={styles.tableContainer} style={{ ["--user-theme-color" as string]: themeColor }}>
+        <table className={styles.table}> 
           <thead>
             <tr>
               <th>Item</th>
@@ -210,6 +215,13 @@ export function InvoicePreview({ invoice }: InvoicePreviewProps) {
                     ×
                   </button>
                   <InvoiceContent />
+                  <input
+                    type="color"
+                    value={themeColor}
+                    onChange={handleThemeChange}
+                    className={styles.colorPicker}
+                    title="Choose theme color"
+                  />
                 </motion.div>
               </div>
             </>
@@ -217,14 +229,16 @@ export function InvoicePreview({ invoice }: InvoicePreviewProps) {
         </AnimatePresence>
       </LayoutGroup>
       
-      <div className={styles.previewHeader}>
-        <button 
-          className={styles.previewButton} 
-          onClick={() => setIsExpanded(true)}
-        >
-          Expand Preview
-        </button>
-      </div>
+      {!isExpanded && (
+        <div className={styles.previewHeader}>
+          <button 
+            className={styles.previewButton} 
+            onClick={() => setIsExpanded(true)}
+          >
+            Preview Invoice
+          </button>
+        </div>
+      )}
     </div>
   );
 }
