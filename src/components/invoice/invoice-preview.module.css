@@ -187,12 +187,11 @@
   margin-bottom: 1.5rem;
   width: fit-content;
   margin-inline-start: auto;
-  min-width: 248px;
+  min-width: 150px;
 }
 .totalRow {
   display: flex;
   justify-content: space-between;
-  min-width: 200px;
   font-size: 8px;
 }
 .totalRow.bold {
@@ -202,7 +201,6 @@
 .totalDivider {
   border-top: 1px solid #e5e7eb;
   margin: 0.5rem 0;
-  min-width: 200px; /* Match the width of totalRow */
 }
 
 .notes {
@@ -235,7 +233,7 @@
   gap: .5rem;
 	flex-wrap: nowrap;
 	justify-content: space-between;
-  font-family: var(--font-Fixed-200, "Basier Circle");
+  font-family: var(--font-inter);
   color: var(--fg-static-neutral-light, #6b6b6b);
 
   & > div {
@@ -245,24 +243,20 @@
 
 .invoiceDetailsHeader{
   font-weight: 600;
-  margin-bottom: 0.5rem;
-  font-size: 12px;
-  font-family: var(--font-Fixed-200, "Basier Circle");
+  margin-bottom: 0.125rem;
+  font-size: 8px;
+  font-family: var(--font-inter);
 }
 
 .invoiceDetailsSubHeader{
   font-weight: 500;
-  font-size: 12px;
+  font-size: 8px;
   color: var(--fg-static-neutral-light, #6b6b6b);
-  font-family: var(--font-Fixed-200, "Basier Circle");
-}
-
-.previewContainer p {
-  font-size: 10px;
+  font-family: var(--font-inter);
 }
 
 .label {
-  font-size: 12px;
+  font-size: 8px;
   font-weight: 600;
 }
 
@@ -272,10 +266,10 @@
 }
 
 .invoiceNameContainer {
-  margin-block-end: 1rem;
+  margin-block-end: .5rem;
 }
 .invoiceName {
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 600;
 }
 
@@ -382,4 +376,8 @@
 .colorPicker::-webkit-color-swatch {
   border: none;
   border-radius: 50%;
+}
+
+.invoicePreviewText {
+  font-size: 7px;
 }

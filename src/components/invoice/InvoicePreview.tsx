@@ -65,26 +65,26 @@ export function InvoicePreview({ invoice }: InvoicePreviewProps) {
           <p className={styles.invoiceDetailsSubHeader}>
             Due: {invoice.dueDate}
           </p>
-          <p>Issued: {invoice.date}</p>
-          <p>Ref: {invoice.invoiceNumber}</p>
+          <p className={styles.invoicePreviewText}>Issued: {invoice.date}</p>
+          <p className={styles.invoicePreviewText}>Ref: {invoice.invoiceNumber}</p>
         </div>
         <div className={styles.companyInfo}>
           <p className={styles.invoiceDetailsHeader}>From:</p>
           <p className={styles.invoiceDetailsSubHeader}>{invoice.sender.name}</p>
-          <p>{invoice.sender.address}</p>
-          <p>
+          <p className={styles.invoicePreviewText}>{invoice.sender.address}</p>
+          <p className={styles.invoicePreviewText}>
             {invoice.sender.city ? `${invoice.sender.city},` : ''} {invoice.sender.state} {invoice.sender.postalCode}
           </p>
-          <p>{invoice.sender.phone}</p>
+          <p className={styles.invoicePreviewText}>{invoice.sender.phone}</p>
         </div>
         <div className={styles.companyInfo}>
           <p className={styles.invoiceDetailsHeader}>To:</p>
           <p className={styles.invoiceDetailsSubHeader}>{invoice.recipient.name}</p>
-          <p>{invoice.recipient.address}</p>
-          <p>
+          <p className={styles.invoicePreviewText}>{invoice.recipient.address}</p>
+          <p className={styles.invoicePreviewText}>
             {invoice.recipient.city ? `${invoice.recipient.city},` : ''} {invoice.recipient.state} {invoice.recipient.postalCode}
           </p>
-          <p>{invoice.recipient.phone}</p>
+          <p className={styles.invoicePreviewText}>{invoice.recipient.phone}</p>
         </div>
       </div>
 
@@ -108,14 +108,14 @@ export function InvoicePreview({ invoice }: InvoicePreviewProps) {
           <tbody>
             {invoice.items.map((item, index) => (
               <tr key={index}>
-                <td style={{ fontWeight: 600 }}>{item.description}</td>
-                <td style={{ textAlign: "right" }}>{formatPeriodDate(item.issueDate)}</td>
-                <td style={{ textAlign: "right" }}>{item.quantity}</td>
+                <td style={{ fontWeight: 600 }}><span className={styles.invoicePreviewText}>{item.description}</span></td>
+                <td style={{ textAlign: "right" }}><span className={styles.invoicePreviewText}>{formatPeriodDate(item.issueDate)}</span></td>
+                <td style={{ textAlign: "right" }}><span className={styles.invoicePreviewText}>{item.quantity}</span></td>
                 <td style={{ textAlign: "right" }}>
-                  {formatCurrency(item.rate, invoice.currency)}
+                  <span className={styles.invoicePreviewText}>{formatCurrency(item.rate, invoice.currency)}</span>
                 </td>
                 <td style={{ textAlign: "right" }}>
-                  {formatCurrency(item.amount, invoice.currency)}
+                  <span className={styles.invoicePreviewText}>{formatCurrency(item.amount, invoice.currency)}</span>
                 </td>
               </tr>
             ))}
@@ -124,22 +124,22 @@ export function InvoicePreview({ invoice }: InvoicePreviewProps) {
       </div>
 
       <div className={styles.totals}>
-        <div className={styles.totalRow}>
+        <div className={`${styles.totalRow} ${styles.invoicePreviewText}`}>
           <span>Subtotal:</span>
           <span>{formatCurrency(invoice.subtotal, invoice.currency)}</span>
         </div>
-        <div className={styles.totalRow}>
+        <div className={`${styles.totalRow} ${styles.invoicePreviewText}`}>
           <span>Tax ({invoice.taxRate}%):</span>
           <span>{formatCurrency(invoice.taxAmount, invoice.currency)}</span>
         </div>
         {(invoice.shipping !== undefined && invoice.shipping !== null && invoice.shipping > 0) && (
-          <div className={styles.totalRow}>
+          <div className={`${styles.totalRow} ${styles.invoicePreviewText}`}>
             <span>Shipping:</span>
             <span>{formatCurrency(invoice.shipping, invoice.currency)}</span>
           </div>
         )}
         <div className={styles.totalDivider} />
-        <div className={`${styles.totalRow} ${styles.bold}`}>
+        <div className={`${styles.totalRow} ${styles.bold} ${styles.invoicePreviewText}`}>
           <span>Total:</span>
           <span>{formatCurrency(invoice.total, invoice.currency)}</span>
         </div>
@@ -149,8 +149,8 @@ export function InvoicePreview({ invoice }: InvoicePreviewProps) {
         <div className={styles.notes}>
           {invoice.notes && (
             <div style={{ marginBottom: 16 }}>
-              <h3 className={styles.label}>Notes:</h3>
-              <p>{invoice.notes}</p>
+              <h5 className={styles.label}>Notes:</h5>
+              <p className={styles.invoicePreviewText}>{invoice.notes}</p>
             </div>
           )}
           {invoice.paymentInstructions && (
