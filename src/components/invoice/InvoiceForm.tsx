@@ -86,7 +86,7 @@ const invoiceSchema = z.object({
   items: z
     .array(invoiceItemSchema)
     .min(1, "At least one item is required")
-    .max(50, "Too many items"),
+    .max(5, "Maximum 5 items allowed"),
   taxRate: z
     .number()
     .min(0, "Tax rate must be positive")
@@ -963,8 +963,9 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
               })
             }
             className={styles.addItemBtn}
+            disabled={fields.length >= 5}
           >
-            Add Item
+            {fields.length >= 5 ? "Maximum 5 items reached" : "Add Item"}
           </button>
           <div style={{ display: "none" }} className={styles.itemsTotal}>
             <span>Total:&nbsp;</span>

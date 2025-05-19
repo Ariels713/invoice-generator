@@ -1,7 +1,7 @@
 .previewContainer {
   background: #fff;
   padding: 2rem;
-  padding-inline: 1rem; 
+  padding-inline: 1rem;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   max-width: 800px;
   margin: 0 auto;
@@ -14,15 +14,29 @@
   cursor: pointer;
 }
 
-.previewContainer:hover {
-  /* transform: scale(1.01); */
+@media (max-width: 992px) {
+  .previewWrapper {
+    display: none !important;
+  }
 }
 
-@media (max-width: 992px) {
-	.previewWrapper {
-	  display: none !important;
-	}
+.expandedPreviewWrapper {
+
+  & .header {
+    margin-bottom: 3rem; 
   }
+  
+  & h2 {
+    padding-top: 1.25rem;
+    font-size: 32px;
+  }
+
+  & .logo {
+    width: 125px;
+    height: auto;
+    object-fit: contain;
+  }
+}
 
 .previewHeader {
   display: flex;
@@ -85,6 +99,7 @@
   padding: 40px;
   padding-top: 80px;
   pointer-events: none;
+  font-size: 14px;
 }
 
 .expandedPreview {
@@ -101,7 +116,7 @@
 .closeButton {
   --background-color: #07ebc0;
   --text-color: #151716;
-  position: absolute;  
+  position: absolute;
   top: 15px;
   right: 15px;
   width: 30px;
@@ -172,11 +187,17 @@
   font-size: 8px;
 }
 .table th {
-  font-weight: 600;;
+  font-weight: 600;
   color: var(--fg-static-neutral-light, #6b6b6b);
 }
 .table td {
   font-size: 10px;
+}
+
+.itemDescription {
+  max-width: 112px;
+  font-weight: 600;
+  hyphens: auto;
 }
 
 .totals {
@@ -231,10 +252,10 @@
 }
 
 .invoiceDetails {
-	display: flex;
-  gap: .5rem;
-	flex-wrap: nowrap;
-	justify-content: space-between;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+  justify-content: space-between;
   font-family: var(--font-Fixed-200, "Basier Circle");
   color: var(--fg-static-neutral-light, #6b6b6b);
 
@@ -243,14 +264,14 @@
   }
 }
 
-.invoiceDetailsHeader{
+.invoiceDetailsHeader {
   font-weight: 600;
   margin-bottom: 0.5rem;
   font-size: 12px;
   font-family: var(--font-Fixed-200, "Basier Circle");
 }
 
-.invoiceDetailsSubHeader{
+.invoiceDetailsSubHeader {
   font-weight: 500;
   font-size: 12px;
   color: var(--fg-static-neutral-light, #6b6b6b);
@@ -277,6 +298,13 @@
 .invoiceName {
   font-size: 12px;
   font-weight: 600;
+}
+
+.invoiceName[data-truncate-length="250"] {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 250px;
 }
 
 .itemStack {
@@ -382,4 +410,15 @@
 .colorPicker::-webkit-color-swatch {
   border: none;
   border-radius: 50%;
+}
+
+.colorPickerIcon {
+  width: 1.75rem;
+  height: 1.75rem;
+  background: none;
+  position: absolute;
+  bottom: 35px;
+  right: 35px;
+  z-index: 1003;
+  pointer-events: none;
 }

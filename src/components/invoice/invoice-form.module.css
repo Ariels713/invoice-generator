@@ -431,8 +431,8 @@
 }
 
 .invoicePreview {
-  flex: 1.2 0 auto;
-  min-width: 300px;
+  flex: 1.5 0 auto;
+  min-width: 400px;
   position: relative;
 }
 
