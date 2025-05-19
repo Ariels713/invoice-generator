@@ -36,6 +36,37 @@
     height: auto;
     object-fit: contain;
   }
+
+  & .invoiceDetails {
+    margin-bottom: 2rem;
+  }
+
+  & .invoiceName {
+    font-size: 16px;
+  }
+
+  & .table th {
+    font-size: 12px;
+  }
+
+  & .table td {
+    font-size: 10px;
+  }
+  
+
+  & .totals {
+    min-width: 300px;
+  }
+
+  & .notes {
+    max-width: 300;
+    min-width: 300;
+  }
+
+  & .label {
+    font-size: 14px;
+
+  }
 }
 
 .previewHeader {
@@ -190,9 +221,6 @@
   font-weight: 600;
   color: var(--fg-static-neutral-light, #6b6b6b);
 }
-.table td {
-  font-size: 10px;
-}
 
 .itemDescription {
   max-width: 112px;
@@ -208,7 +236,7 @@
   margin-bottom: 1.5rem;
   width: fit-content;
   margin-inline-start: auto;
-  min-width: 248px;
+  min-width: 200px;
 }
 .totalRow {
   display: flex;
@@ -231,7 +259,8 @@
   padding-top: 1.5rem;
   width: fit-content;
   margin-left: auto;
-  max-width: 248px;
+  min-width: 200px;
+  max-width: 200px;
 }
 
 .downloadBtn {
