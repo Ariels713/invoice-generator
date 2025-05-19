@@ -9,7 +9,7 @@
   -webkit-print-color-adjust: exact !important;
   print-color-adjust: exact !important;
   color-adjust: exact !important;
-  font-size: 10px;
+  font-size: 8px;
   /* width: 5in; */
   cursor: pointer;
 }
@@ -138,8 +138,8 @@
 
 .title {
   color: var(--Rho-Revised-Neutrals-Abyss-500, #151716);
-  font-family: var(--font-inter);
-  font-size: 16px;
+  font-family: var(--font-degular-display), sans-serif;
+  font-size: 24px;
   font-style: normal;
   font-weight: 400;
   line-height: 44px;
@@ -176,7 +176,7 @@
   color: var(--fg-static-neutral-light, #6b6b6b);
 }
 .table td {
-  font-size: 10px;
+  font-size: 8px;
 }
 
 .totals {
@@ -193,7 +193,7 @@
   display: flex;
   justify-content: space-between;
   min-width: 200px;
-  font-size: 10px;
+  font-size: 8px;
 }
 .totalRow.bold {
   font-weight: bold;

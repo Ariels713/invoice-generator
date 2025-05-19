@@ -6,6 +6,7 @@ import { formatCurrency } from "@/lib/currencies";
 import styles from "./invoice-preview.module.css";
 import Image from 'next/image'
 import { AnimatePresence, motion, LayoutGroup } from "motion/react";
+import { degularDisplay } from '@/fonts'
 
 interface InvoicePreviewProps {
   invoice: Invoice;
@@ -40,10 +41,10 @@ export function InvoicePreview({ invoice }: InvoicePreviewProps) {
   };
 
   // Invoice content component - reused in both preview and expanded view
-  const InvoiceContent = () => (
+  const InvoiceContent = ({ isExpanded }: { isExpanded: boolean }) => (
     <>
       <div className={styles.header}>
-        <h2 className={styles.title}>Invoice</h2>
+        <h2 className={`${styles.title} ${degularDisplay.className}`}>Invoice</h2>
         {invoice.logo && (
           <Image
             src={invoice.logo}
@@ -203,9 +204,9 @@ export function InvoicePreview({ invoice }: InvoicePreviewProps) {
                   transition={smoothTransition}
                   style={{ 
                     transformOrigin: "top left",
-                    width: "8.5in", // Standard letter width
-                    maxWidth: "90vw", // Responsive constraint
-                    aspectRatio: "9/11"
+                    width: "7.5in", // Standard letter width
+                    maxWidth: "55vw", // Responsive constraint
+                    aspectRatio: "10/11"
                   }}
                 >
                   <button 
