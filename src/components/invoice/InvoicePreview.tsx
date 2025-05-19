@@ -43,7 +43,7 @@ export function InvoicePreview({ invoice }: InvoicePreviewProps) {
   const InvoiceContent = () => (
     <>
       <div className={styles.header}>
-        <h1 className={styles.title}>INVOICE</h1>
+        <h2 className={styles.title}>Invoice</h2>
         {invoice.logo && (
           <Image
             src={invoice.logo}
