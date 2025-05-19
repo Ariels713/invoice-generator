@@ -25,6 +25,7 @@ function formatPeriodDate(dateString: string): string {
 export function InvoicePreview({ invoice }: InvoicePreviewProps) {
   const previewRef = useRef<HTMLDivElement>(null);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [themeColor, setThemeColor] = useState('#05a588'); // Default theme color
   
   // Define a consistent transition for both directions - less bouncy
   const smoothTransition = { 
@@ -34,11 +35,15 @@ export function InvoicePreview({ invoice }: InvoicePreviewProps) {
     mass: 1
   };
 
+  const handleThemeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setThemeColor(e.target.value);
+  };
+
   // Invoice content component - reused in both preview and expanded view
   const InvoiceContent = () => (
     <>
       <div className={styles.header}>
-        <h1 className={styles.title}>INVOICE</h1>
+        <h2 className={styles.title}>Invoice</h2>
         {invoice.logo && (
           <Image
             src={invoice.logo}
@@ -64,24 +69,20 @@ export function InvoicePreview({ invoice }: InvoicePreviewProps) {
         </div>
         <div className={styles.companyInfo}>
           <p className={styles.invoiceDetailsHeader}>From:</p>
-          <p>{invoice.sender.name}</p>
+          <p className={styles.invoiceDetailsSubHeader}>{invoice.sender.name}</p>
           <p>{invoice.sender.address}</p>
           <p>
-            {`${invoice.sender.city},`} {invoice.sender.state} {invoice.sender.postalCode}
+            {invoice.sender.city ? `${invoice.sender.city},` : ''} {invoice.sender.state} {invoice.sender.postalCode}
           </p>
-          <p>{invoice.sender.country}</p>
-          <p>{invoice.sender.email}</p>
           <p>{invoice.sender.phone}</p>
         </div>
         <div className={styles.companyInfo}>
           <p className={styles.invoiceDetailsHeader}>To:</p>
-          <p>{invoice.recipient.name}</p>
+          <p className={styles.invoiceDetailsSubHeader}>{invoice.recipient.name}</p>
           <p>{invoice.recipient.address}</p>
           <p>
-            {invoice.recipient.city}, {invoice.recipient.state} {invoice.recipient.postalCode}
+            {invoice.recipient.city ? `${invoice.recipient.city},` : ''} {invoice.recipient.state} {invoice.recipient.postalCode}
           </p>
-          <p>{invoice.recipient.country}</p>
-          <p>{invoice.recipient.email}</p>
           <p>{invoice.recipient.phone}</p>
         </div>
       </div>
@@ -92,8 +93,8 @@ export function InvoicePreview({ invoice }: InvoicePreviewProps) {
         )}
       </div>
 
-      <div className={styles.tableContainer}>
-        <table className={styles.table}>
+      <div className={styles.tableContainer} style={{ ["--user-theme-color" as string]: themeColor }}>
+        <table className={styles.table}> 
           <thead>
             <tr>
               <th>Item</th>
@@ -214,6 +215,13 @@ export function InvoicePreview({ invoice }: InvoicePreviewProps) {
                     ×
                   </button>
                   <InvoiceContent />
+                  <input
+                    type="color"
+                    value={themeColor}
+                    onChange={handleThemeChange}
+                    className={styles.colorPicker}
+                    title="Choose theme color"
+                  />
                 </motion.div>
               </div>
             </>
@@ -221,14 +229,16 @@ export function InvoicePreview({ invoice }: InvoicePreviewProps) {
         </AnimatePresence>
       </LayoutGroup>
       
-      <div className={styles.previewHeader}>
-        <button 
-          className={styles.previewButton} 
-          onClick={() => setIsExpanded(true)}
-        >
-          Expand Preview
-        </button>
-      </div>
+      {!isExpanded && (
+        <div className={styles.previewHeader}>
+          <button 
+            className={styles.previewButton} 
+            onClick={() => setIsExpanded(true)}
+          >
+            Preview Invoice
+          </button>
+        </div>
+      )}
     </div>
   );
 }
