@@ -920,16 +920,27 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
               </div>
               <div className={styles.col} style={{ position: "relative" }}>
                 <label className={styles.label}>Rate</label>
-                <span className={styles.currencyPrefix}>
+                {/* <span className={styles.currencyPrefix}>
                   {currencies.find((c) => c.code === formData.currency)
                     ?.symbol || formData.currency}
-                </span>
+                </span> */}
                 <input
-                  type="number"
-                  step="0.01"
-                  {...register(`items.${index}.rate`, { valueAsNumber: true })}
+                  type="text"
+                  inputMode="decimal"
+                  {...register(`items.${index}.rate`, {
+                    setValueAs: (v) =>
+                      typeof v === "string"
+                        ? Number(v.replace(/[^0-9.-]+/g, "")) || 0
+                        : Number(v) || 0,
+                  })}
+                  value={formData.items?.[index]?.rate?.toString() ?? ""}
+                  onChange={(e) => {
+                    const raw = e.target.value.replace(/[^0-9.]+/g, '');
+                    const value = parseFloat(raw);
+                    setValue(`items.${index}.rate`, isNaN(value) ? 0 : value);
+                  }}
                   className={styles.input}
-                  style={{ paddingLeft: "2rem", paddingRight: "4.5rem" }}
+                  // style={{ paddingLeft: "2rem", paddingRight: "4.5rem" }}
                 />
                 {errors.items?.[index]?.rate && (
                   <p className={styles.error}>
@@ -1040,10 +1051,58 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
               </label>
               <div style={{ position: "relative" }}>
                 <input
-                  type="number"
-                  {...register("taxRate", { valueAsNumber: true })}
+                  type="text"
+                  inputMode="decimal"
+                  {...register("taxRate", { 
+                    valueAsNumber: true,
+                    min: 0,
+                    max: 100,
+                    onChange: (e) => {
+                      // Remove any non-numeric characters except decimal point
+                      const raw = e.target.value.replace(/[^0-9.]+/g, '');
+                      const value = parseFloat(raw);
+                      
+                      // Handle empty input
+                      if (!raw) {
+                        setValue("taxRate", 0);
+                        return;
+                      }
+
+                      // Handle invalid number
+                      if (isNaN(value)) {
+                        setValue("taxRate", 0);
+                        return;
+                      }
+
+                      // Handle negative values
+                      if (value < 0) {
+                        setValue("taxRate", 0);
+                        return;
+                      }
+
+                      // Handle values over 100
+                      if (value > 100) {
+                        setValue("taxRate", 100);
+                        return;
+                      }
+
+                      // Set the cleaned value
+                      setValue("taxRate", value);
+                    }
+                  })}
+                  onFocus={(e) => {
+                    // Clear the input if it's 0 when focused
+                    if (e.target.value === "0") {
+                      e.target.value = "";
+                    }
+                  }}
+                  onBlur={(e) => {
+                    // Set back to 0 if empty on blur
+                    if (!e.target.value) {
+                      setValue("taxRate", 0);
+                    }
+                  }}
                   className={styles.input}
-                  placeholder="%"
                   style={{ paddingRight: "2.5rem" }}
                 />
                 {errors.taxRate && (
@@ -1070,8 +1129,20 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
                 </label>
                 <div style={{ position: "relative" }}>
                   <input
-                    type="number"
-                    {...register("shipping", { valueAsNumber: true })}
+                    type="text"
+                    inputMode="decimal"
+                    {...register("shipping", {
+                      setValueAs: (v) =>
+                        typeof v === "string"
+                          ? Number(v.replace(/[^0-9.-]+/g, "")) || 0
+                          : Number(v) || 0,
+                    })}
+                    value={formData.shipping?.toString() ?? ""}
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/[^0-9.]+/g, '');
+                      const value = parseFloat(raw);
+                      setValue("shipping", isNaN(value) ? 0 : value);
+                    }}
                     className={styles.input}
                     placeholder="Shipping amount"
                     min={0}

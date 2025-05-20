@@ -593,3 +593,14 @@
   opacity: 0.8;
   cursor: pointer;
 }
+
+/* Add these styles to hide number input spinners */
+.input[type="number"] {
+  -moz-appearance: textfield; /* Firefox */
+}
+
+.input[type="number"]::-webkit-outer-spin-button,
+.input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
