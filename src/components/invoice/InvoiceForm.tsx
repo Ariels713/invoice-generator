@@ -16,6 +16,7 @@ import { generateInvoiceName } from "@/lib/generate-invoice-name";
 import Image from "next/image";
 import { pdf } from "@react-pdf/renderer";
 import { InvoicePDF } from "./InvoicePDF";
+import { sendSlackNotification } from '@/lib/slack-service'
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
@@ -142,6 +143,7 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
   const [isEmailSending, setIsEmailSending] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
+  const [hasNotifiedSlack, setHasNotifiedSlack] = useState(false);
 
   const {
     register,
@@ -364,6 +366,35 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
     0
   );
 
+  const handleSlackNotification = async (action: 'download' | 'email') => {
+    if (hasNotifiedSlack) {
+      console.log('Slack notification already sent for this session')
+      return
+    }
+
+    try {
+      const message = {
+        senderCompany: {
+          name: formData.sender?.name || 'Not provided',
+          email: formData.sender?.email || 'Not provided',
+          phone: formData.sender?.phone || 'Not provided'
+        },
+        recipientCompany: {
+          name: formData.recipient?.name || 'Not provided',
+          email: formData.recipient?.email || 'Not provided',
+          phone: formData.recipient?.phone || 'Not provided'
+        },
+        action
+      }
+
+      await sendSlackNotification(message)
+      setHasNotifiedSlack(true)
+      console.log('Slack notification sent successfully')
+    } catch (error) {
+      console.error('Failed to send Slack notification:', error)
+    }
+  }
+
   const handleEmailInvoice = async () => {
     const invoice = getInvoiceData();
     const recipientEmail = formData.sender.email;
@@ -401,6 +432,7 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
     setIsEmailSending(true);
 
     try {
+      await handleSlackNotification('email');
       // Set maximum timeout for PDF generation (30 seconds)
       const pdfPromise = Promise.race([
         pdf(<InvoicePDF invoice={invoice} />).toBlob(),
@@ -490,6 +522,15 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
       alert(errorMessage);
     } finally {
       setIsEmailSending(false);
+    }
+  };
+
+  const handleDownload = async () => {
+    try {
+      await handleSlackNotification('download');
+      // The actual download will be handled by the PDFDownloadButton component
+    } catch (error) {
+      console.error('Error during download process:', error);
     }
   };
 
@@ -1205,6 +1246,7 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
           <PDFDownloadButton
             invoice={getInvoiceData()}
             invoiceNumber={formData.invoiceNumber}
+            onDownload={handleDownload}
           />
           <button
             type="button"

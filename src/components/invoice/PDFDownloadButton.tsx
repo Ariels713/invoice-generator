@@ -8,14 +8,18 @@ import { pdf } from '@react-pdf/renderer'
 
 interface PDFDownloadButtonProps {
   invoice: Invoice
-  invoiceNumber: string
+  invoiceNumber?: string
+  onDownload?: () => Promise<void>
 }
 
-export function PDFDownloadButton({ invoice, invoiceNumber }: PDFDownloadButtonProps) {
+export function PDFDownloadButton({ invoice, invoiceNumber, onDownload }: PDFDownloadButtonProps) {
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<Error | null>(null)
 
   const handleDownload = async () => {
+    if (onDownload) {
+      await onDownload()
+    }
     setIsGenerating(true)
     setError(null)
     
