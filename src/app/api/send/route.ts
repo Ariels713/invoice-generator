@@ -113,13 +113,13 @@ export async function POST(request: NextRequest) {
       to: [recipientEmail],
       subject: `Attached is your...`,
       html: `
-        <div style="font-family: Arial, sans-serif; padding: 20px;">
+        <div style="font-family: Arial, sans-serif; color: #151816;">
           <p>While you're here, want to learn how you can:</p>
-          <ul>
-            <li>Generate more yield on your company cash</li>
-            <li>Save $$$ on invoice fees</li>
-            <li>Earn up to 2% cashback?</li>
-          </ul>
+          <div style="padding-left: 15px;">
+            <p>&bull; Generate more yield on your company cash</p>
+            <p>&bull; Save $$$ on invoice fees</p>
+            <p>&bull; Earn up to 2% cashback?</p>
+          </div>
           <p><a href="https://www.rho.co/contact-sales" style="color: #00a688; text-decoration: none; font-weight: 500;">Book a demo</a>  to learn more about the Rho banking platform today.</p>
         </div>
       `,
