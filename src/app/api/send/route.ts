@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
       html: `
         <div style="font-family: Arial, sans-serif; padding: 20px;">
           <h1 style="color: #05a588;">Your Invoice ${invoice.invoiceNumber ? `#${invoice.invoiceNumber}` : ''}</h1>
-          <p>Hello from ${invoice.sender.name},</p>
+          <p>Hello from your friends at Rho,</p>
           <p>Your invoice has been generated and is attached to this email.</p>
           <div style="margin: 20px 0; padding: 20px; border: 1px solid #e5e7eb; border-radius: 5px;">
             <h2>Invoice Summary</h2>
