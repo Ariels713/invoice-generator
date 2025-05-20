@@ -90,8 +90,7 @@ const invoiceSchema = z.object({
     .max(5, "Maximum 5 items allowed"),
   taxRate: z
     .number()
-    .min(0, "Tax rate must be positive")
-    .max(100, "Tax rate cannot exceed 100%"),
+    .min(0, "Tax rate must be positive"),
   currency: z
     .string()
     .min(1, "Currency is required")
@@ -380,17 +379,28 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
       return
     }
 
+    // Check if both sender and recipient have meaningful data
+    const hasMeaningfulData = (
+      (formData.sender?.name?.trim() || formData.sender?.email?.trim() || formData.sender?.phone?.trim()) &&
+      (formData.recipient?.name?.trim() || formData.recipient?.email?.trim() || formData.recipient?.phone?.trim())
+    )
+
+    if (!hasMeaningfulData) {
+      console.log('Skipping Slack notification - no meaningful data to report')
+      return
+    }
+
     try {
       const message = {
         senderCompany: {
-          name: formData.sender?.name || 'Not provided',
-          email: formData.sender?.email || 'Not provided',
-          phone: formData.sender?.phone || 'Not provided'
+          name: formData.sender?.name?.trim() || 'Not provided',
+          email: formData.sender?.email?.trim() || 'Not provided',
+          phone: formData.sender?.phone?.trim() || 'Not provided'
         },
         recipientCompany: {
-          name: formData.recipient?.name || 'Not provided',
-          email: formData.recipient?.email || 'Not provided',
-          phone: formData.recipient?.phone || 'Not provided'
+          name: formData.recipient?.name?.trim() || 'Not provided',
+          email: formData.recipient?.email?.trim() || 'Not provided',
+          phone: formData.recipient?.phone?.trim() || 'Not provided'
         },
         action
       }
@@ -1100,53 +1110,21 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
               </label>
               <div style={{ position: "relative" }}>
                 <input
-                  type="text"
+                  type="number"
                   inputMode="decimal"
-                  {...register("taxRate", { 
-                    valueAsNumber: true,
-                    min: 0,
-                    max: 100,
-                    onChange: (e) => {
-                      // Remove any non-numeric characters except decimal point
-                      const raw = e.target.value.replace(/[^0-9.]+/g, '');
-                      const value = parseFloat(raw);
-                      
-                      // Handle empty input
-                      if (!raw) {
-                        setValue("taxRate", 0);
-                        return;
-                      }
-
-                      // Handle invalid number
-                      if (isNaN(value)) {
-                        setValue("taxRate", 0);
-                        return;
-                      }
-
-                      // Handle negative values
-                      if (value < 0) {
-                        setValue("taxRate", 0);
-                        return;
-                      }
-
-                      // Handle values over 100
-                      if (value > 100) {
-                        setValue("taxRate", 100);
-                        return;
-                      }
-
-                      // Set the cleaned value
-                      setValue("taxRate", value);
-                    }
-                  })}
+                  step="0.01"
+                  {...register("taxRate")}
+                  value={formData.taxRate?.toString() ?? ""}
+                  onChange={(e) => {
+                    const value = parseFloat(e.target.value);
+                    setValue("taxRate", isNaN(value) || value < 0 ? 0 : value);
+                  }}
                   onFocus={(e) => {
-                    // Clear the input if it's 0 when focused
                     if (e.target.value === "0") {
                       e.target.value = "";
                     }
                   }}
                   onBlur={(e) => {
-                    // Set back to 0 if empty on blur
                     if (!e.target.value) {
                       setValue("taxRate", 0);
                     }
