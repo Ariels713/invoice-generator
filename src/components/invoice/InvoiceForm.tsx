@@ -252,6 +252,14 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
         return;
       }
 
+      // Limit items to 5 if there are more
+      if (parsedData.items && parsedData.items.length > 5) {
+        parsedData.items = parsedData.items.slice(0, 5);
+        setAiError(
+          "We've included the first 5 items from your invoice. You can add more items manually if needed."
+        );
+      }
+
       // Set all parsed values into the form except invoiceName
       Object.entries(parsedData).forEach(([key, value]) => {
         if (key !== "invoiceName") {
