@@ -32,7 +32,7 @@
   }
 
   & .logo {
-    width: 125px;
+    width: 100px;
     height: auto;
     object-fit: contain;
   }
@@ -176,7 +176,6 @@
   width: auto;
   max-width: 200px;
   object-fit: contain;
-  margin-bottom: 1rem;
   -webkit-print-color-adjust: exact !important;
   print-color-adjust: exact !important;
   color-adjust: exact !important;
@@ -412,24 +411,75 @@
   transform: scale(1.05);
 }
 
-.colorPicker {
-  width: 2.5rem;
-  height: 2.5rem;
-  padding: 0;
-  border: 2px solid #fff;
-  border-radius: 50%;
-  cursor: pointer;
-  background: none;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease;
+.themeColorsContainer {
   position: absolute;
   bottom: 30px;
-  right: 30px;
+  left: 30px;
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  /* background: rgba(255, 255, 255, 0.9);
+  border-radius: 12px; */
+  /* box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); */
+  backdrop-filter: blur(8px);
   z-index: 1002;
 }
 
+.themeColorButton {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid white;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.themeColorButton:hover {
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.themeColorButton:active {
+  transform: scale(0.95);
+}
+
+.colorPickerWrapper {
+  position: relative;
+  width: 32px;
+  height: 32px;
+}
+
+.colorPicker {
+  --sdr-gradient: conic-gradient(
+    from 0deg at 50% 50%,
+    #ff0097 0%, #ff0097 100%
+  );
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  /* border: 2px solid black; */
+  border-radius: 50%;
+  cursor: pointer;
+  background: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  z-index: 1;
+  background: var(--sdr-gradient);
+  position: absolute;
+  bottom: 25px;
+  left: 30px;
+}
+
 .colorPicker:hover {
-  transform: scale(1.05);
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.colorPicker:active {
+  transform: scale(0.95);
 }
 
 .colorPicker::-webkit-color-swatch-wrapper {
@@ -442,12 +492,22 @@
 }
 
 .colorPickerIcon {
-  width: 1.75rem;
-  height: 1.75rem;
-  background: none;
+  width: 16px;
+  height: 16px;
   position: absolute;
-  bottom: 35px;
-  right: 35px;
-  z-index: 1003;
+  z-index: 2;
   pointer-events: none;
+  position: absolute;
+  bottom: 33px;
+  left: 38px;
+}
+
+.themeColorLabel {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;  
+  position: absolute;
+  left: 38px;
+  bottom: 39px;
+  z-index: 1003;
 }
