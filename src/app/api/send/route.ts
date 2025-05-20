@@ -109,24 +109,13 @@ export async function POST(request: NextRequest) {
     
     // Send email with PDF attachment
     const { data, error } = await resend.emails.send({
-      from: `Invoice Generator <onboarding@resend.dev>`,
+      from: `Invoice Generator <noreply@rho.co>`,
       to: [recipientEmail],
-      subject: invoice.invoiceNumber 
-        ? `Invoice #${invoice.invoiceNumber} from ${invoice.sender.name}`
-        : `Invoice from ${invoice.sender.name}`,
+      subject: `Your New Invoice is Ready`,
       html: `
         <div style="font-family: Arial, sans-serif; padding: 20px;">
-          <h1 style="color: #05a588;">Your Invoice ${invoice.invoiceNumber ? `#${invoice.invoiceNumber}` : ''}</h1>
           <p>Hello from your friends at Rho,</p>
-          <p>Your invoice has been generated and is attached to this email.</p>
-          <div style="margin: 20px 0; padding: 20px; border: 1px solid #e5e7eb; border-radius: 5px;">
-            <h2>Invoice Summary</h2>
-            ${invoice.invoiceNumber ? `<p><strong>Invoice Number:</strong> ${invoice.invoiceNumber}</p>` : ''}
-            <p><strong>Issue Date:</strong> ${invoice.date}</p>
-            <p><strong>Due Date:</strong> ${invoice.dueDate}</p>
-            <p><strong>Total Amount:</strong> ${invoice.total} ${invoice.currency}</p>
-          </div>
-          <p>Thank you for your business!</p>
+          <p>Here is a downloadable copy of the invoice you generated using the Rho Invoice Generator. Want to learn how you can earn more yield on your corporate cash or process invoices faster with Rho? <a href="https://www.rho.co/contact-sales" style="color: #00a688; text-decoration: none; font-weight: 500;">Book a meeting today</a>.</p>
         </div>
       `,
       attachments: [
