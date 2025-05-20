@@ -109,13 +109,18 @@ export async function POST(request: NextRequest) {
     
     // Send email with PDF attachment
     const { data, error } = await resend.emails.send({
-      from: `Invoice Generator <noreply@rho.co>`,
+      from: `Rho <noreply@rho.co>`,
       to: [recipientEmail],
-      subject: `Your New Invoice is Ready`,
+      subject: `Attached is your...`,
       html: `
         <div style="font-family: Arial, sans-serif; padding: 20px;">
-          <p>Hello from your friends at Rho,</p>
-          <p>Here is a downloadable copy of the invoice you generated using the Rho Invoice Generator. Want to learn how you can earn more yield on your corporate cash or process invoices faster with Rho? <a href="https://www.rho.co/contact-sales" style="color: #00a688; text-decoration: none; font-weight: 500;">Book a meeting today</a>.</p>
+          <p>While you're here, want to learn how you can:</p>
+          <ul>
+            <li>Generate more yield on your company cash</li>
+            <li>Save $$$ on invoice fees</li>
+            <li>Earn up to 2% cashback?</li>
+          </ul>
+          <p><a href="https://www.rho.co/contact-sales" style="color: #00a688; text-decoration: none; font-weight: 500;">Book a demo</a>  to learn more about the Rho banking platform today.</p>
         </div>
       `,
       attachments: [
