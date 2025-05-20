@@ -41,3 +41,15 @@ a {
 		color-scheme: dark;
 	}
 }
+
+/* Add text selection styles */
+::selection {
+	background-color: rgba(0, 166, 136, 0.2); /* Using your theme color with 20% opacity */
+	color: inherit;
+}
+
+/* For Firefox */
+::-moz-selection {
+	background-color: rgba(0, 166, 136, 0.2);
+	color: inherit;
+}

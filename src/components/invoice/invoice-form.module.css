@@ -124,6 +124,7 @@
   cursor: pointer;
   position: relative;
   min-width: 160px;
+  white-space: nowrap;
 }
 
 .autofillInvoiceButton {
@@ -431,8 +432,8 @@
 }
 
 .invoicePreview {
-  flex: 1.2 0 auto;
-  min-width: 300px;
+  flex: 1.5 0 auto;
+  min-width: 400px;
   position: relative;
 }
 
@@ -591,4 +592,15 @@
   filter: invert(0.8); /* This makes the white icon dark */
   opacity: 0.8;
   cursor: pointer;
+}
+
+/* Add these styles to hide number input spinners */
+.input[type="number"] {
+  -moz-appearance: textfield; /* Firefox */
+}
+
+.input[type="number"]::-webkit-outer-spin-button,
+.input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }

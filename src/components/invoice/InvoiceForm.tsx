@@ -16,6 +16,7 @@ import { generateInvoiceName } from "@/lib/generate-invoice-name";
 import Image from "next/image";
 import { pdf } from "@react-pdf/renderer";
 import { InvoicePDF } from "./InvoicePDF";
+import { sendSlackNotification } from '@/lib/slack-service'
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
@@ -86,7 +87,7 @@ const invoiceSchema = z.object({
   items: z
     .array(invoiceItemSchema)
     .min(1, "At least one item is required")
-    .max(50, "Too many items"),
+    .max(5, "Maximum 5 items allowed"),
   taxRate: z
     .number()
     .min(0, "Tax rate must be positive")
@@ -142,6 +143,7 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
   const [isEmailSending, setIsEmailSending] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
+  const [hasNotifiedSlack, setHasNotifiedSlack] = useState(false);
 
   const {
     register,
@@ -364,6 +366,35 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
     0
   );
 
+  const handleSlackNotification = async (action: 'download' | 'email') => {
+    if (hasNotifiedSlack) {
+      console.log('Slack notification already sent for this session')
+      return
+    }
+
+    try {
+      const message = {
+        senderCompany: {
+          name: formData.sender?.name || 'Not provided',
+          email: formData.sender?.email || 'Not provided',
+          phone: formData.sender?.phone || 'Not provided'
+        },
+        recipientCompany: {
+          name: formData.recipient?.name || 'Not provided',
+          email: formData.recipient?.email || 'Not provided',
+          phone: formData.recipient?.phone || 'Not provided'
+        },
+        action
+      }
+
+      await sendSlackNotification(message)
+      setHasNotifiedSlack(true)
+      console.log('Slack notification sent successfully')
+    } catch (error) {
+      console.error('Failed to send Slack notification:', error)
+    }
+  }
+
   const handleEmailInvoice = async () => {
     const invoice = getInvoiceData();
     const recipientEmail = formData.sender.email;
@@ -401,6 +432,7 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
     setIsEmailSending(true);
 
     try {
+      await handleSlackNotification('email');
       // Set maximum timeout for PDF generation (30 seconds)
       const pdfPromise = Promise.race([
         pdf(<InvoicePDF invoice={invoice} />).toBlob(),
@@ -490,6 +522,15 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
       alert(errorMessage);
     } finally {
       setIsEmailSending(false);
+    }
+  };
+
+  const handleDownload = async () => {
+    try {
+      await handleSlackNotification('download');
+      // The actual download will be handled by the PDFDownloadButton component
+    } catch (error) {
+      console.error('Error during download process:', error);
     }
   };
 
@@ -920,16 +961,27 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
               </div>
               <div className={styles.col} style={{ position: "relative" }}>
                 <label className={styles.label}>Rate</label>
-                <span className={styles.currencyPrefix}>
+                {/* <span className={styles.currencyPrefix}>
                   {currencies.find((c) => c.code === formData.currency)
                     ?.symbol || formData.currency}
-                </span>
+                </span> */}
                 <input
-                  type="number"
-                  step="0.01"
-                  {...register(`items.${index}.rate`, { valueAsNumber: true })}
+                  type="text"
+                  inputMode="decimal"
+                  {...register(`items.${index}.rate`, {
+                    setValueAs: (v) =>
+                      typeof v === "string"
+                        ? Number(v.replace(/[^0-9.-]+/g, "")) || 0
+                        : Number(v) || 0,
+                  })}
+                  value={formData.items?.[index]?.rate?.toString() ?? ""}
+                  onChange={(e) => {
+                    const raw = e.target.value.replace(/[^0-9.]+/g, '');
+                    const value = parseFloat(raw);
+                    setValue(`items.${index}.rate`, isNaN(value) ? 0 : value);
+                  }}
                   className={styles.input}
-                  style={{ paddingLeft: "2rem", paddingRight: "4.5rem" }}
+                  // style={{ paddingLeft: "2rem", paddingRight: "4.5rem" }}
                 />
                 {errors.items?.[index]?.rate && (
                   <p className={styles.error}>
@@ -963,8 +1015,9 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
               })
             }
             className={styles.addItemBtn}
+            disabled={fields.length >= 5}
           >
-            Add Item
+            {fields.length >= 5 ? "Maximum 5 items reached" : "Add Item"}
           </button>
           <div style={{ display: "none" }} className={styles.itemsTotal}>
             <span>Total:&nbsp;</span>
@@ -1039,10 +1092,58 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
               </label>
               <div style={{ position: "relative" }}>
                 <input
-                  type="number"
-                  {...register("taxRate", { valueAsNumber: true })}
+                  type="text"
+                  inputMode="decimal"
+                  {...register("taxRate", { 
+                    valueAsNumber: true,
+                    min: 0,
+                    max: 100,
+                    onChange: (e) => {
+                      // Remove any non-numeric characters except decimal point
+                      const raw = e.target.value.replace(/[^0-9.]+/g, '');
+                      const value = parseFloat(raw);
+                      
+                      // Handle empty input
+                      if (!raw) {
+                        setValue("taxRate", 0);
+                        return;
+                      }
+
+                      // Handle invalid number
+                      if (isNaN(value)) {
+                        setValue("taxRate", 0);
+                        return;
+                      }
+
+                      // Handle negative values
+                      if (value < 0) {
+                        setValue("taxRate", 0);
+                        return;
+                      }
+
+                      // Handle values over 100
+                      if (value > 100) {
+                        setValue("taxRate", 100);
+                        return;
+                      }
+
+                      // Set the cleaned value
+                      setValue("taxRate", value);
+                    }
+                  })}
+                  onFocus={(e) => {
+                    // Clear the input if it's 0 when focused
+                    if (e.target.value === "0") {
+                      e.target.value = "";
+                    }
+                  }}
+                  onBlur={(e) => {
+                    // Set back to 0 if empty on blur
+                    if (!e.target.value) {
+                      setValue("taxRate", 0);
+                    }
+                  }}
                   className={styles.input}
-                  placeholder="%"
                   style={{ paddingRight: "2.5rem" }}
                 />
                 {errors.taxRate && (
@@ -1069,8 +1170,20 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
                 </label>
                 <div style={{ position: "relative" }}>
                   <input
-                    type="number"
-                    {...register("shipping", { valueAsNumber: true })}
+                    type="text"
+                    inputMode="decimal"
+                    {...register("shipping", {
+                      setValueAs: (v) =>
+                        typeof v === "string"
+                          ? Number(v.replace(/[^0-9.-]+/g, "")) || 0
+                          : Number(v) || 0,
+                    })}
+                    value={formData.shipping?.toString() ?? ""}
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/[^0-9.]+/g, '');
+                      const value = parseFloat(raw);
+                      setValue("shipping", isNaN(value) ? 0 : value);
+                    }}
                     className={styles.input}
                     placeholder="Shipping amount"
                     min={0}
@@ -1133,6 +1246,7 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
           <PDFDownloadButton
             invoice={getInvoiceData()}
             invoiceNumber={formData.invoiceNumber}
+            onDownload={handleDownload}
           />
           <button
             type="button"
