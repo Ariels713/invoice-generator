@@ -113,18 +113,35 @@ export async function POST(request: NextRequest) {
       to: [recipientEmail],
       subject: `Attached is your...`,
       html: `
-        <div style="font-family: Arial, sans-serif; color: #151816;">
-          <p style="color: #151816;">Attached is a copy of the invoice you created using the Rho Invoice Generator.</p>
-          <p style="color: #151816;">While you're here, want to learn how you can:</p>
-          <div style="padding-left: 15px;">
-            <p style="color: #151816;">&bull; Generate more yield on your company cash</p>
-            <p style="color: #151816;">&bull; Save $$$ on invoice fees</p>
-            <p style="color: #151816;">&bull; Earn up to 2% cashback?</p>
-          </div>
-          <p style="color: #151816;"><a href="https://www.rho.co/contact-sales" style="color: #00a688; text-decoration: none; font-weight: 500;">Book a demo</a>  to learn more about the Rho banking platform today.</p>
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="font-family: Arial, sans-serif; color: #151816;">
+  <tr>
+    <td>
+      <p style="margin: 0 0 16px 0; color: #151816;">
+        Attached is a copy of the invoice you created using the Rho Invoice Generator.
+      </p>
 
-          <p>Best, The Rho Team</p>
-        </div>
+      <p style="margin: 0 0 16px 0; color: #151816;">
+        While you're here, want to learn how you can:
+      </p>
+
+      <ul style="margin: 0 0 16px 15px; padding: 0; color: #151816;">
+        <li style="margin-bottom: 8px;">Generate more yield on your company cash</li>
+        <li style="margin-bottom: 8px;">Save $$$ on invoice fees</li>
+        <li>Earn up to 2% cashback?</li>
+      </ul>
+
+      <p style="margin: 0 0 16px 0; color: #151816;">
+        <a href="https://www.rho.co/contact-sales" style="color: #00a688; text-decoration: none; font-weight: 500;">
+          Book a demo
+        </a> to learn more about the Rho banking platform today.
+      </p>
+
+      <p style="margin: 0; color: #151816;">
+        Best,<br>The Rho Team
+      </p>
+    </td>
+  </tr>
+</table>
       `,
       attachments: [
         {
