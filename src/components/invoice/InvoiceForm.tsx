@@ -638,7 +638,7 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
 
           <div className={styles.basicInfoCol}>
             <label className={styles.labelHeader}>
-              {formData.logo ? "Uploaded File" : "Upload File"}
+              {formData.logo ? "Uploaded Logo" : "Upload Logo"}
             </label>
             <div className={styles.logoUpload}>
               {!formData.logo && (
