@@ -114,13 +114,16 @@ export async function POST(request: NextRequest) {
       subject: `Attached is your...`,
       html: `
         <div style="font-family: Arial, sans-serif; color: #151816;">
-          <p>While you're here, want to learn how you can:</p>
+          <p style="color: #151816;">Attached is a copy of the invoice you created using the Rho Invoice Generator.</p>
+          <p style="color: #151816;">While you're here, want to learn how you can:</p>
           <div style="padding-left: 15px;">
-            <p>&bull; Generate more yield on your company cash</p>
-            <p>&bull; Save $$$ on invoice fees</p>
-            <p>&bull; Earn up to 2% cashback?</p>
+            <p style="color: #151816;">&bull; Generate more yield on your company cash</p>
+            <p style="color: #151816;">&bull; Save $$$ on invoice fees</p>
+            <p style="color: #151816;">&bull; Earn up to 2% cashback?</p>
           </div>
-          <p><a href="https://www.rho.co/contact-sales" style="color: #00a688; text-decoration: none; font-weight: 500;">Book a demo</a>  to learn more about the Rho banking platform today.</p>
+          <p style="color: #151816;"><a href="https://www.rho.co/contact-sales" style="color: #00a688; text-decoration: none; font-weight: 500;">Book a demo</a>  to learn more about the Rho banking platform today.</p>
+
+          <p>Best, The Rho Team</p>
         </div>
       `,
       attachments: [
