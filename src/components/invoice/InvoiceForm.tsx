@@ -17,6 +17,7 @@ import Image from "next/image";
 import { pdf } from "@react-pdf/renderer";
 import { InvoicePDF } from "./InvoicePDF";
 import { sendSlackNotification } from '@/lib/slack-service'
+import { sendToHubspot } from '@/lib/hubspot-service'
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
@@ -143,6 +144,7 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
   const [emailSent, setEmailSent] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
   const [hasNotifiedSlack, setHasNotifiedSlack] = useState(false);
+  const [hasNotifiedHubspot, setHasNotifiedHubspot] = useState(false);
 
   const {
     register,
@@ -413,6 +415,49 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
     }
   }
 
+  const handleHubspotNotification = async () => {
+    if (hasNotifiedHubspot) {
+      console.log('Hubspot notification already sent for this session')
+      return
+    }
+
+    // Check if both sender and recipient have meaningful data
+    const hasMeaningfulData = (
+      (formData.sender?.name?.trim() || formData.sender?.email?.trim() || formData.sender?.phone?.trim()) &&
+      (formData.recipient?.name?.trim() || formData.recipient?.email?.trim() || formData.recipient?.phone?.trim())
+    )
+
+    if (!hasMeaningfulData) {
+      console.log('Skipping Hubspot notification - no meaningful data to report')
+      return
+    }
+
+    try {
+      const hubspotData = {
+        company: formData.sender?.name?.trim() || '',
+        email: formData.sender?.email?.trim() || '',
+        address: formData.sender?.address?.trim() || '',
+        address2: formData.sender?.address2?.trim() || '',
+        city: formData.sender?.city?.trim() || '',
+        postalCode: formData.sender?.postalCode?.trim() || '',
+        phone: formData.sender?.phone?.trim() || '',
+        recipient_company: formData.recipient?.name?.trim() || '',
+        recipient_email: formData.recipient?.email?.trim() || '',
+        recipient_address_1: formData.recipient?.address?.trim() || '',
+        recipient_address_2: formData.recipient?.address2?.trim() || '',
+        recipient_city: formData.recipient?.city?.trim() || '',
+        recipient_postal_code: formData.recipient?.postalCode?.trim() || '',
+        recipient_phone: formData.recipient?.phone?.trim() || ''
+      }
+
+      await sendToHubspot(hubspotData)
+      setHasNotifiedHubspot(true)
+      console.log('Hubspot notification sent successfully')
+    } catch (error) {
+      console.error('Failed to send Hubspot notification:', error)
+    }
+  }
+
   const handleEmailInvoice = async () => {
     const invoice = getInvoiceData();
     const recipientEmail = formData.sender.email;
@@ -450,7 +495,8 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
     setIsEmailSending(true);
 
     try {
-      await handleSlackNotification('email');
+      await handleSlackNotification('email')
+      await handleHubspotNotification()
       // Set maximum timeout for PDF generation (30 seconds)
       const pdfPromise = Promise.race([
         pdf(<InvoicePDF invoice={invoice} />).toBlob(),
@@ -545,7 +591,8 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
 
   const handleDownload = async () => {
     try {
-      await handleSlackNotification('download');
+      await handleSlackNotification('download')
+      await handleHubspotNotification()
       // The actual download will be handled by the PDFDownloadButton component
     } catch (error) {
       console.error('Error during download process:', error);
