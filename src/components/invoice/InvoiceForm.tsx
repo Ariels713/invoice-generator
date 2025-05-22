@@ -828,7 +828,7 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
           </div>
 
           <div className={styles.companyInfoCol}>
-            <h3 className={styles.labelHeader}>Receiving company info</h3>
+            <h3 className={styles.labelHeader}>Who You're Invoicing</h3>
             <input
               type="text"
               {...register("recipient.name")}
