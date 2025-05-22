@@ -5,7 +5,7 @@ const HUBSPOT_FORM_ID = '7ec96e57-fd09-49c4-b610-68da66a27aa4'
 
 export async function POST(request: Request) {
   try {
-    const { context, ...formData } = await request.json()
+    const formData = await request.json()
 
     // Transform the data into Hubspot's expected format
     const fields = Object.entries(formData).map(([name, value]) => ({
@@ -15,9 +15,9 @@ export async function POST(request: Request) {
 
     const hubspotData = {
       fields,
-      context: context || {
-        pageUri: '',
-        pageName: ''
+      context: {
+        pageUri: 'https://invoice.rho.co',
+        pageName: 'Rho Invoice Generator'
       }
     }
 

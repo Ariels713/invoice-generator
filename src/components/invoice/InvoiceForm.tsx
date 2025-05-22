@@ -144,15 +144,7 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
   const [emailSent, setEmailSent] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
   const [hasNotifiedSlack, setHasNotifiedSlack] = useState(false);
-  
-  const [hasNotifiedHubspot, setHasNotifiedHubspot] = useState(() => {
-    // Initialize from localStorage if available
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('hasNotifiedHubspot')
-      return stored === 'true'
-    }
-    return false
-  });
+  const [hasNotifiedHubspot, setHasNotifiedHubspot] = useState(false);
 
   const {
     register,
@@ -384,6 +376,10 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
   );
 
   const handleSlackNotification = async (action: 'download' | 'email') => {
+    // Temporarily disable Slack notifications for testing
+    console.log('Slack notifications temporarily disabled for testing')
+    return
+
     if (hasNotifiedSlack) {
       console.log('Slack notification already sent for this session')
       return
@@ -425,7 +421,7 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
 
   const handleHubspotNotification = async () => {
     if (hasNotifiedHubspot) {
-      console.log('Hubspot notification already sent in a previous session')
+      console.log('Hubspot notification already sent for this session')
       return
     }
 
@@ -460,10 +456,6 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
 
       await sendToHubspot(hubspotData)
       setHasNotifiedHubspot(true)
-      // Store in localStorage
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('hasNotifiedHubspot', 'true')
-      }
       console.log('Hubspot notification sent successfully')
     } catch (error) {
       console.error('Failed to send Hubspot notification:', error)

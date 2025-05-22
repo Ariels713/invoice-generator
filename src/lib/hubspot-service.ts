@@ -19,20 +19,12 @@ export async function sendToHubspot(formData: HubspotFormData) {
   try {
     console.log('Attempting to send data to Hubspot...')
     
-    const hubspotData = {
-      ...formData,
-      context: {
-        pageUri: window.location.href,
-        pageName: document.title
-      }
-    }
-    
     const response = await fetch('/api/hubspot', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(hubspotData)
+      body: JSON.stringify(formData)
     })
 
     if (!response.ok) {
