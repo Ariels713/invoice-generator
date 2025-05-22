@@ -144,6 +144,7 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
   const [emailSent, setEmailSent] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
   const [hasNotifiedSlack, setHasNotifiedSlack] = useState(false);
+  
   const [hasNotifiedHubspot, setHasNotifiedHubspot] = useState(() => {
     // Initialize from localStorage if available
     if (typeof window !== 'undefined') {
@@ -423,8 +424,7 @@ export function InvoiceForm({ onSubmit }: InvoiceFormProps) {
   }
 
   const handleHubspotNotification = async () => {
-    // Check localStorage first
-    if (typeof window !== 'undefined' && localStorage.getItem('hasNotifiedHubspot') === 'true') {
+    if (hasNotifiedHubspot) {
       console.log('Hubspot notification already sent in a previous session')
       return
     }
