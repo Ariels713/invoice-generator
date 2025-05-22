@@ -13,6 +13,10 @@ interface SlackMessage {
 }
 
 export async function sendSlackNotification(message: SlackMessage) {
+  // Return early to disable Slack notifications
+  console.log('Slack notifications are disabled for testing')
+  return
+
   const blocks = [
     {
       type: 'header',
