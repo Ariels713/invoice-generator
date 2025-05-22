@@ -12,13 +12,6 @@ interface SlackMessage {
   action: 'download' | 'email'
 }
 
-// Flag to control Slack notifications
-let isSlackEnabled = true
-
-export function setSlackEnabled(enabled: boolean) {
-  isSlackEnabled = enabled
-}
-
 export async function sendSlackNotification(message: SlackMessage) {
   // Return early to disable Slack notifications
   console.log('Slack notifications are disabled for testing')
